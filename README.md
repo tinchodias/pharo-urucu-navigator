@@ -19,4 +19,10 @@ Metacello new
 * Code dependencies in Spec2 + Search: `HiMNavigatorPresenter defaultSpec`.
 * Extension to Roassal3 layout where rectangles repulse others: Run `RSRectangleRepulsionForceLayout` class side examples.
 
+---
 
+## What is *urucu*?
+
+Urucú is one of the names of [this tree and fruit](https://es.wikipedia.org/wiki/Bixa_orellana) in South America:
+
+![Plant](https://upload.wikimedia.org/wikipedia/commons/3/3c/Urucum_%28bixa_orellana%29_seeds.jpg)
