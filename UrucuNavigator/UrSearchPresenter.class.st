@@ -23,7 +23,6 @@ Class {
 { #category : #specs }
 UrSearchPresenter class >> defaultSpec [
 	<spec>
-	<script: 'self new openWithSpec'>
 	
 	^ (SpBoxLayout newHorizontal
 			add: #textInput

@@ -26,32 +26,31 @@ UrRectangleRepulsionForceLayout class >> exampleON [
 
 { #category : #initialization }
 UrRectangleRepulsionForceLayout class >> newBoxes [
-	| labeled verticalNodes horizontalNodes |
+	| labeled boxes proto colorScale |
 	labeled := RSLabeled new.
-"	labeled shape scaleBy: 0.5."
+	labeled shapeBuilder labelShape scaleBy: 0.5.
 	labeled location middle.
+
+	proto :=
+		RSBox new
+			addInteraction: labeled;
+			addInteraction: RSDraggable;
+			yourself.
+
+	colorScale := RSColorPalette qualitative flatui113.
 	
-	verticalNodes := (1 to: 10) collect: [ :each | 
-		RSBox new
-			width: 10;
-			height: 100;
-			color: Color random translucent;
+	boxes := (1 to: 20) collect: [ :each | 
+		proto copyWithAnnouncer
+			color: ((colorScale scale: each) alpha: 70 percent);
 			model: each;
-			addInteraction: labeled;
-			addInteraction: RSDraggable;
-			yourself
-		 ].
-	horizontalNodes := (1 to: 10) collect: [ :each | 
-		RSBox new
-			width: 100;
-			height: 10;
-			color: Color random translucent;
-			model: each;
-			addInteraction: labeled;
-			addInteraction: RSDraggable;
 			yourself ].
 
-	^ verticalNodes, horizontalNodes
+	boxes withIndexDo: [ :each :index |
+		index even
+			ifTrue: [ each width: 10; height: 100 ]
+			ifFalse: [ each width: 100; height: 10 ] ].
+
+	^ boxes
 ]
 
 { #category : #initialization }
@@ -60,7 +59,7 @@ UrRectangleRepulsionForceLayout class >> openWithLayoutClass: layoutClass [
 	| view nodes instance |
 	nodes := self newBoxes.
 	instance := layoutClass new
-		nodes: nodes;
+		addNodes: nodes;
 		yourself.
 
 	view := RSCanvas new.
@@ -70,10 +69,10 @@ UrRectangleRepulsionForceLayout class >> openWithLayoutClass: layoutClass [
 		easing: RSEasing cubicInOut;
 		from: 0.1;
 		to: 0.0;
-		duration: 5 seconds;
+		duration: 7 seconds;
 		onStepDo: [ :t | instance alpha: t; step ].
 	
-"	view addInteraction: RSActivityMonitorView."
+	view addInteraction: RSSimpleCanvasMonitor.
 	view camera scale: 2.
 	view open setLabel: instance className.
 
@@ -112,7 +111,7 @@ UrRectangleRepulsionForceLayout >> stepRectangleRepulsionForces [
 			anotherRect := another encompassingRectangle.
 
 			(anotherRect intersects: eachRect) ifTrue: [ 
-				areas := anotherRect areasOutside:  eachRect.
+				areas := anotherRect areasOutside: eachRect.
 				escapePoint := areas
 					ifEmpty: [ 0 asPoint " <--- just arbitrary! "]
 					ifNotEmpty: [ eachRect floatCenter - (areas detectMax: #area) floatCenter ].
