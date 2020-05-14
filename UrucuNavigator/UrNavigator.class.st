@@ -8,7 +8,9 @@ Class {
 		'topLevelNodes',
 		'forceAnimation',
 		'colorScale',
-		'canvas'
+		'canvas',
+		'highlightableForEdges',
+		'highlightableForShapes'
 	],
 	#category : #'UrucuNavigator-UI'
 }
@@ -292,22 +294,25 @@ UrNavigator >> forceAlphaRangeAsArray [
 
 { #category : #visualization }
 UrNavigator >> highlightableForEdges [
-	^ RSHighlightable new
-		highlightColor: self currentTheme caretColor;
-		yourself
+	^ highlightableForEdges ifNil: [
+		highlightableForEdges := RSHighlightable new
+			highlightColor: self currentTheme caretColor;
+			yourself ]
 ]
 
 { #category : #visualization }
 UrNavigator >> highlightableForShapes [
-	^ RSHighlightable new
-		highlightColor: [ :shape |
-			shape color adjustBrightness: 0.16 ];
-		highlightBorder: [ :shape |
-			RSBorder new
-				color: self currentTheme textColor;
-				width: 0.3;
-				yourself ];
-		yourself
+	^ highlightableForShapes ifNil: [
+		highlightableForShapes := 
+			RSHighlightable new
+				highlightColor: [ :shape |
+					shape color adjustBrightness: 0.16 ];
+				highlightBorder: [ :shape |
+					RSBorder new
+						color: self currentTheme textColor;
+						width: 0.3;
+						yourself ];
+				yourself ]
 ]
 
 { #category : #initialization }
@@ -332,7 +337,7 @@ UrNavigator >> initializeOn: aRSView [
 	"Apply forces from the window borders to the elements."
 	canvas
 		when: RSExtentChangedEvent
-		do: [ :evt | 
+		do: [ :evt |
 			| camera origin corner |
 			camera := canvas canvas camera.
 			origin := camera fromPixelToSpace: 0 @ 0.
@@ -343,8 +348,8 @@ UrNavigator >> initializeOn: aRSView [
 	canvas
 		when: RSKeyDown
 		do: [ :evt | self processKeyDown: evt ].
-		
-"	view addInteraction: RSActivityMonitorView."
+	
+	canvas addInteraction: RSGraphCanvasMonitor.
 ]
 
 { #category : #'expanding-collapsing' }
