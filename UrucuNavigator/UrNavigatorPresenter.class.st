@@ -4,9 +4,9 @@ Class {
 	#instVars : [
 		'viewPresenter',
 		'searchPresenter',
-		'lastView',
 		'lastNavigator',
-		'packageNames'
+		'packageNames',
+		'currentCanvas'
 	],
 	#category : #'UrucuNavigator-UI'
 }
@@ -37,18 +37,18 @@ UrNavigatorPresenter class >> example1 [
 ]
 
 { #category : #private }
-UrNavigatorPresenter >> fillLastView [
+UrNavigatorPresenter >> fillCurrentCanvas [
 
 	| builder |
-	lastNavigator := UrNavigator newOn: lastView.
+	lastNavigator := UrNavigator newOn: currentCanvas.
 	builder := UrImageDependenciesBuilder new
 		navigator: lastNavigator;
 		packageNames: packageNames;
 		build.
 
 	searchPresenter searchModel topParentNodes: builder topLevelNodes.
-	lastView camera scale: 6.
-	lastView when: RSMouseClick do: [ lastView morph takeKeyboardFocus ].
+	currentCanvas camera scale: 6.
+	currentCanvas when: RSMouseClick do: [ currentCanvas morph takeKeyboardFocus ].
 ]
 
 { #category : #'private - searching' }
@@ -66,16 +66,16 @@ UrNavigatorPresenter >> highlightAllSearchResults [
 			self unhighlightCompositeElementWithLabel: evt element ].
 	
 	elementsForAllSearchResults := allSearchResults
-		collect: [:each | lastView shapeFromModel: each ]
+		collect: [:each | currentCanvas shapeFromModel: each ]
 		thenReject: #isNil.
 	
 	self shouldHighlightAll
 		ifTrue: [
 			highlightableForCurrentSearchResult doHighlightShapes: elementsForAllSearchResults ]
 		ifFalse: [ 
-			highlightableForCurrentSearchResult unhighlightRecordedShapes: lastView ].
+			highlightableForCurrentSearchResult unhighlightRecordedShapes: currentCanvas ].
 	
-	lastView signalUpdate
+	currentCanvas signalUpdate
 ]
 
 { #category : #'private - searching' }
@@ -132,25 +132,25 @@ UrNavigatorPresenter >> highlightCurrentSearchResult [
 	self flag: #todo.
 	highlightableForCurrentSearchResult highlightShape. "TODO: Needed to ensure a slot has been initialized."
 
-	topLevelElement := lastView shapeFromModel: aHiMNode topParent.
+	topLevelElement := currentCanvas shapeFromModel: aHiMNode topParent.
 	lastNavigator executeAndRegisterExpandIfPossible: topLevelElement.
 
 	(topLevelElement shapeFromModel: aHiMNode)
 		ifNotNil: [ :element | 
 			highlightableForCurrentSearchResult doHighlight: element ]
 		ifNil: [
-			(lastView shapeFromModel: aHiMNode topParent) ifNotNil:
+			(currentCanvas shapeFromModel: aHiMNode topParent) ifNotNil:
 				[ :element | highlightableForCurrentSearchResult doHighlight: element ] ].
 		
-	lastView signalUpdate
+	currentCanvas signalUpdate
 ]
 
 { #category : #initialization }
-UrNavigatorPresenter >> initializeWidgets [
+UrNavigatorPresenter >> initializePresenters [
 	viewPresenter := (self instantiate: SpRoassalPresenter)
-		script: [ :newView |
-			lastView := newView.
-			self fillLastView ];
+		script: [ :newCanvas |
+			currentCanvas := newCanvas.
+			self fillCurrentCanvas ];
 		yourself.
 
 	searchPresenter := (self instantiate: UrSearchPresenter)
@@ -176,15 +176,15 @@ UrNavigatorPresenter >> shouldHighlightAll [
 ]
 
 { #category : #'private - searching' }
-UrNavigatorPresenter >> unhighlightCompositeElementWithLabel: element [
+UrNavigatorPresenter >> unhighlightCompositeElementWithLabel: aRSComposite [
 	| label normalColor |
 	normalColor := lastNavigator currentTheme textColor.
-	label := element shapes last.
+	label := aRSComposite shapes last.
 	label color: normalColor.
 	
-	element
+	aRSComposite
 		border: nil;
 		color: nil.
 	
-	element shapes removeFirst: element shapes size - 1
+	aRSComposite shapes removeFirst: aRSComposite shapes size - 1
 ]
