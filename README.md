@@ -15,9 +15,14 @@ Metacello new
 
 ## Where to start
 
-* Code dependencies: See examples in class side of `HiMNavigator`.
-* Code dependencies in Spec2 + Search: `HiMNavigatorPresenter defaultSpec`.
-* Extension to Roassal3 layout where rectangles repulse others: Run `RSRectangleRepulsionForceLayout` class side examples.
+Open the navigator with:
+
+```Smalltalk
+UrNavigatorPresenter example1
+```
+
+There is also an experimental Roassal3 layout where rectangles repulse other.
+See `RSRectangleRepulsionForceLayout` examples on class-side.
 
 ---
 
