@@ -5,7 +5,7 @@ Class {
 		'from',
 		'to'
 	],
-	#category : #'UrucuNavigator-Model'
+	#category : #'UrucuNavigator-Graph'
 }
 
 { #category : #'instance creation' }

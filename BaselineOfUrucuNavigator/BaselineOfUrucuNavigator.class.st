@@ -9,11 +9,15 @@ BaselineOfUrucuNavigator >> baseline: spec [
 	<baseline>
 	spec
 		for: #common
-		do: [
+		do: [ 
 			self declareRoassal3On: spec.
+
 			spec
-				package: 'UrucuNavigator'
-				with: [ spec requires: #('Roassal3') ] ]
+				package: 'UrucuNavigator';
+				package: 'UrucuNavigator-DependencyAnalysis' with: [ spec requires: #('UrucuNavigator') ];
+				package: 'UrucuNavigator-Tests' with: [ spec requires: #('UrucuNavigator') ];
+				package: 'UrucuNavigator-UI' with: [ spec requires: #('Roassal3' 'UrucuNavigator' 'UrucuNavigator-DependencyAnalysis') ].
+ ]
 ]
 
 { #category : #'external projects' }

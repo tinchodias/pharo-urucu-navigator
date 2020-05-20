@@ -1,7 +1,7 @@
 Class {
 	#name : #UrExpand,
 	#superclass : #UrNodeCommand,
-	#category : #'UrucuNavigator-UI-Commands'
+	#category : #'UrucuNavigator-Commands'
 }
 
 { #category : #execution }

@@ -5,7 +5,7 @@ Class {
 		'commandsToUndo',
 		'commandsToRedo'
 	],
-	#category : #'UrucuNavigator-UI-Commands'
+	#category : #'UrucuNavigator-Commands'
 }
 
 { #category : #accessing }

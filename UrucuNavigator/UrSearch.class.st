@@ -6,7 +6,7 @@ Class {
 		'topParentNodes',
 		'includeBlock'
 	],
-	#category : #'UrucuNavigator-Model'
+	#category : #'UrucuNavigator-Search'
 }
 
 { #category : #accessing }

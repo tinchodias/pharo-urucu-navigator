@@ -8,7 +8,7 @@ Class {
 		'incomingLinks',
 		'parent'
 	],
-	#category : #'UrucuNavigator-Model'
+	#category : #'UrucuNavigator-Graph'
 }
 
 { #category : #'instance creation' }

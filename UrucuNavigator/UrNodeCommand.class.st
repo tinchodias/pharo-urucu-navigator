@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'node'
 	],
-	#category : #'UrucuNavigator-UI-Commands'
+	#category : #'UrucuNavigator-Commands'
 }
 
 { #category : #accessing }

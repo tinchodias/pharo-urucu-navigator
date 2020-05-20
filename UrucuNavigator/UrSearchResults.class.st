@@ -5,7 +5,7 @@ Class {
 		'nodes',
 		'currentIndex'
 	],
-	#category : #'UrucuNavigator-Model'
+	#category : #'UrucuNavigator-Search'
 }
 
 { #category : #'instance creation' }

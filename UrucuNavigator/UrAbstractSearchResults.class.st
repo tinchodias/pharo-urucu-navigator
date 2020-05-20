@@ -1,7 +1,7 @@
 Class {
 	#name : #UrAbstractSearchResults,
 	#superclass : #Object,
-	#category : #'UrucuNavigator-Model'
+	#category : #'UrucuNavigator-Search'
 }
 
 { #category : #accessing }
