@@ -41,6 +41,8 @@ UrNavigatorPresenter >> fillCurrentCanvas [
 
 	| builder |
 	lastNavigator := UrNavigator newOn: currentCanvas.
+	lastNavigator labelStrategy: UrTopLabelStrategy new.
+"	lastNavigator labelStrategy: UrFloatingLabelStrategy new."
 	builder := UrImageDependenciesBuilder new
 		navigator: lastNavigator;
 		packageNames: packageNames;
@@ -88,8 +90,8 @@ UrNavigatorPresenter >> highlightCompositeElementWithLabel: element intensity: k
 	ranges := label text allRangesOfSubstring: searchedText.
 
 	"visualize"
-	highlightColor := lastNavigator currentTheme warningTextColor.
-	backgroundColor := lastNavigator currentTheme backgroundColor alpha: 0.5.
+	highlightColor := self theme warningTextColor.
+	backgroundColor := self theme backgroundColor alpha: 0.5.
 	element color: backgroundColor.
 	element border: (RSBorder new color: (highlightColor alpha: k); width: 3 * k; yourself).
 	element pushFront.
@@ -178,7 +180,7 @@ UrNavigatorPresenter >> shouldHighlightAll [
 { #category : #'private - searching' }
 UrNavigatorPresenter >> unhighlightCompositeElementWithLabel: aRSComposite [
 	| label normalColor |
-	normalColor := lastNavigator currentTheme textColor.
+	normalColor := self theme textColor.
 	label := aRSComposite shapes last.
 	label color: normalColor.
 	

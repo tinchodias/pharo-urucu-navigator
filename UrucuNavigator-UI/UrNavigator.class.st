@@ -16,20 +16,8 @@ Class {
 }
 
 { #category : #examples }
-UrNavigator class >> exampleFloatingLabels [
-
-	^ self openExampleWith:  (self new labelStrategy: UrFloatingLabelStrategy new; yourself)
-]
-
-{ #category : #examples }
-UrNavigator class >> exampleTopLabels [
-
-	^ self openExampleWith: (self new labelStrategy: UrTopLabelStrategy new; yourself)
-]
-
-{ #category : #examples }
 UrNavigator class >> new [
-	^ self newOn: RSCanvas new
+	^ self shouldNotImplement
 ]
 
 { #category : #examples }
@@ -37,21 +25,6 @@ UrNavigator class >> newOn: aRSCanvas [
 	^ self basicNew
 		initializeOn: aRSCanvas;
 		yourself
-]
-
-{ #category : #examples }
-UrNavigator class >> openExampleWith: aHiMNavigator [
-
-	| aRSCanvas |
-	UrImageDependenciesBuilder new
-		navigator: aHiMNavigator;
-		packageNames: {'Hiedra'. 'Hiedra-Tests'." 'Hiedra-Roassal3'." "'Random-Core'"". 'Athens-Cairo'. 'Growl'. 'Iceberg'"};
-		build.
-
-	aRSCanvas := aHiMNavigator canvas.
-	aRSCanvas camera scale: 6.
-	aRSCanvas open.
-
 ]
 
 { #category : #visualization }
