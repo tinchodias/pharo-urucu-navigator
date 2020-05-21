@@ -1,5 +1,5 @@
 Class {
-	#name : #UrNavigatorPresenter,
+	#name : #UrMainPresenter,
 	#superclass : #SpPresenter,
 	#instVars : [
 		'viewPresenter',
@@ -12,7 +12,7 @@ Class {
 }
 
 { #category : #specs }
-UrNavigatorPresenter class >> defaultSpec [
+UrMainPresenter class >> defaultSpec [
 	<spec>
 	
 	^ SpBoxLayout newVertical 
@@ -26,7 +26,7 @@ UrNavigatorPresenter class >> defaultSpec [
 ]
 
 { #category : #examples }
-UrNavigatorPresenter class >> example1 [ 
+UrMainPresenter class >> example1 [ 
 	^ (self new
 		setModelBeforeInitialization: {'Hiedra'. 'Hiedra-Tests'. 'Athens-Cairo'. "'Growl'. 'Iceberg'"};
 		openWithSpec)
@@ -37,7 +37,7 @@ UrNavigatorPresenter class >> example1 [
 ]
 
 { #category : #private }
-UrNavigatorPresenter >> fillCurrentCanvas [
+UrMainPresenter >> fillCurrentCanvas [
 
 	| builder |
 	lastNavigator := UrNavigator newOn: currentCanvas.
@@ -54,7 +54,7 @@ UrNavigatorPresenter >> fillCurrentCanvas [
 ]
 
 { #category : #'private - searching' }
-UrNavigatorPresenter >> highlightAllSearchResults [
+UrMainPresenter >> highlightAllSearchResults [
 	| highlightableForCurrentSearchResult allSearchResults elementsForAllSearchResults |
 
 	allSearchResults := searchPresenter lastResultModel nodes.
@@ -81,7 +81,7 @@ UrNavigatorPresenter >> highlightAllSearchResults [
 ]
 
 { #category : #'private - searching' }
-UrNavigatorPresenter >> highlightCompositeElementWithLabel: element intensity: k [
+UrMainPresenter >> highlightCompositeElementWithLabel: element intensity: k [
 
 	| ranges font label highlightColor searchedText highlightShapeBuilder backgroundColor |
 	"search result model"
@@ -115,7 +115,7 @@ UrNavigatorPresenter >> highlightCompositeElementWithLabel: element intensity: k
 ]
 
 { #category : #'private - searching' }
-UrNavigatorPresenter >> highlightCurrentSearchResult [
+UrMainPresenter >> highlightCurrentSearchResult [
 	| highlightableForCurrentSearchResult topLevelElement aHiMNode |
 	searchPresenter lastResultModel hasResults ifFalse: [ ^self ].
 	
@@ -148,7 +148,7 @@ UrNavigatorPresenter >> highlightCurrentSearchResult [
 ]
 
 { #category : #initialization }
-UrNavigatorPresenter >> initializePresenters [
+UrMainPresenter >> initializePresenters [
 	viewPresenter := (self instantiate: SpRoassalPresenter)
 		script: [ :newCanvas |
 			currentCanvas := newCanvas.
@@ -168,17 +168,17 @@ UrNavigatorPresenter >> initializePresenters [
 ]
 
 { #category : #private }
-UrNavigatorPresenter >> setModelBeforeInitialization: somePackageNames [
+UrMainPresenter >> setModelBeforeInitialization: somePackageNames [
 	packageNames := somePackageNames
 ]
 
 { #category : #'private - searching' }
-UrNavigatorPresenter >> shouldHighlightAll [
+UrMainPresenter >> shouldHighlightAll [
 	^ searchPresenter isHighlightAllEnabled and: [ searchPresenter lastResultModel hasResults ]
 ]
 
 { #category : #'private - searching' }
-UrNavigatorPresenter >> unhighlightCompositeElementWithLabel: aRSComposite [
+UrMainPresenter >> unhighlightCompositeElementWithLabel: aRSComposite [
 	| label normalColor |
 	normalColor := self theme textColor.
 	label := aRSComposite shapes last.
