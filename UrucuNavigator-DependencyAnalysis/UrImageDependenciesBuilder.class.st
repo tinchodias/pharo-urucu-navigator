@@ -3,11 +3,11 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'packageNames',
-		'navigator',
 		'relationGraph',
 		'nodeByDAPackage',
 		'nodeByBehavior',
-		'colorScale'
+		'colorScale',
+		'canvasController'
 	],
 	#category : #'UrucuNavigator-DependencyAnalysis'
 }
@@ -17,7 +17,7 @@ UrImageDependenciesBuilder >> build [
 	self buildTopLevelNodes.
 	self buildColorScale.
 	
-	navigator 
+	canvasController 
 		topLevelNodes: self topLevelNodes;
 		colorScale: self colorScale;
 		build.
@@ -36,8 +36,8 @@ UrImageDependenciesBuilder >> buildColorScale [
 		range: (nodes collect: [:each | 
 			| color |
 			color := (packageNames includes: each object)
-				ifTrue: [ navigator currentTheme caretColor ]
-				ifFalse: [ (tmpScale scale: (each object readStream upTo: $-)) mixed: 0.75 with: navigator currentTheme backgroundColor ].
+				ifTrue: [ canvasController currentTheme caretColor ]
+				ifFalse: [ (tmpScale scale: (each object readStream upTo: $-)) mixed: 0.75 with: canvasController currentTheme backgroundColor ].
 			color ]);
 		yourself.
 
@@ -60,6 +60,11 @@ UrImageDependenciesBuilder >> buildTopLevelNodes [
 "
 		aDAPackage dependencies do: [:each | each accept: self ] ]
 
+]
+
+{ #category : #accessing }
+UrImageDependenciesBuilder >> canvasController: anObject [
+	canvasController := anObject
 ]
 
 { #category : #accessing }
@@ -110,16 +115,6 @@ UrImageDependenciesBuilder >> initialize [
 	
 	nodeByDAPackage := Dictionary new.
 	nodeByBehavior := Dictionary new.
-]
-
-{ #category : #accessing }
-UrImageDependenciesBuilder >> navigator [
-	^ navigator
-]
-
-{ #category : #accessing }
-UrImageDependenciesBuilder >> navigator: anObject [
-	navigator := anObject
 ]
 
 { #category : #accessing }

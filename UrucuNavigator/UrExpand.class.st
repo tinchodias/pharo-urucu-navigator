@@ -6,13 +6,13 @@ Class {
 
 { #category : #execution }
 UrExpand >> execute [
-	navigator expand: node
+	canvasController expand: node
 ]
 
 { #category : #execution }
 UrExpand >> inverse [
 	^ UrCollapse new
-		navigator: navigator;
+		canvasController: canvasController;
 		node: node;
 		yourself
 ]

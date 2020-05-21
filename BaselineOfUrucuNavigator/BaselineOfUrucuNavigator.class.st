@@ -14,10 +14,12 @@ BaselineOfUrucuNavigator >> baseline: spec [
 
 			spec
 				package: 'UrucuNavigator';
-				package: 'UrucuNavigator-DependencyAnalysis' with: [ spec requires: #('UrucuNavigator') ];
-				package: 'UrucuNavigator-Tests' with: [ spec requires: #('UrucuNavigator') ];
-				package: 'UrucuNavigator-UI' with: [ spec requires: #('Roassal3' 'UrucuNavigator' 'UrucuNavigator-DependencyAnalysis') ].
- ]
+				package: 'UrucuNavigator-DependencyAnalysis'
+					with: [ spec requires: #('UrucuNavigator' 'UrucuNavigator-UI') ];
+				package: 'UrucuNavigator-Tests'
+					with: [ spec requires: #('UrucuNavigator') ];
+				package: 'UrucuNavigator-UI'
+					with: [ spec requires: #('Roassal3' 'UrucuNavigator') ] ]
 ]
 
 { #category : #'external projects' }

@@ -18,12 +18,12 @@ UrLabelStrategy >> applyBeforeCreatingElementsWith: shapeBuilder [
 ]
 
 { #category : #accessing }
-UrLabelStrategy >> navigator [
+UrLabelStrategy >> canvasController [
 	^ navigator
 ]
 
 { #category : #accessing }
-UrLabelStrategy >> navigator: anObject [
+UrLabelStrategy >> canvasController: anObject [
 	navigator := anObject
 ]
 

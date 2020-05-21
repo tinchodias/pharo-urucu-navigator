@@ -1,5 +1,5 @@
 Class {
-	#name : #UrNavigator,
+	#name : #UrCanvasController,
 	#superclass : #Object,
 	#instVars : [
 		'layout',
@@ -16,19 +16,19 @@ Class {
 }
 
 { #category : #examples }
-UrNavigator class >> new [
+UrCanvasController class >> new [
 	^ self shouldNotImplement
 ]
 
 { #category : #examples }
-UrNavigator class >> newOn: aRSCanvas [
+UrCanvasController class >> newOn: aRSCanvas [
 	^ self basicNew
 		initializeOn: aRSCanvas;
 		yourself
 ]
 
 { #category : #visualization }
-UrNavigator >> addEdgesFor: someRSShapes [
+UrCanvasController >> addEdgesFor: someRSShapes [
 
 	| edgeBuilder edges |
 	edgeBuilder := RSEdgeBuilder line
@@ -69,7 +69,7 @@ UrNavigator >> addEdgesFor: someRSShapes [
 ]
 
 { #category : #visualization }
-UrNavigator >> addNestedEdgesFor: someRSElements [
+UrCanvasController >> addNestedEdgesFor: someRSElements [
 
 	| edgeBuilder |
 	edgeBuilder := RSEdgeBuilder line
@@ -99,7 +99,7 @@ UrNavigator >> addNestedEdgesFor: someRSElements [
 ]
 
 { #category : #visualization }
-UrNavigator >> addNodesFor: someHiMNodes [
+UrCanvasController >> addNodesFor: someHiMNodes [
 
 	| shapes |
 "
@@ -114,18 +114,18 @@ UrNavigator >> addNodesFor: someHiMNodes [
 ]
 
 { #category : #accessing }
-UrNavigator >> build [
+UrCanvasController >> build [
 	self addNodesFor: topLevelNodes.
 	self startForceAnimationFinitely.
 ]
 
 { #category : #accessing }
-UrNavigator >> canvas [
+UrCanvasController >> canvas [
 	^ canvas
 ]
 
 { #category : #'expanding-collapsing' }
-UrNavigator >> collapse: aRSElement [ 
+UrCanvasController >> collapse: aRSElement [ 
 	| endSize |
 	endSize := self sizeFor: aRSElement model.
 
@@ -150,67 +150,67 @@ UrNavigator >> collapse: aRSElement [
 ]
 
 { #category : #visualization }
-UrNavigator >> colorFor: aHiMNode [
+UrCanvasController >> colorFor: aHiMNode [
 	^ self colorScale scale: aHiMNode topParent
 ]
 
 { #category : #accessing }
-UrNavigator >> colorScale [
+UrCanvasController >> colorScale [
 	^ colorScale ifNil: [ colorScale := NSScale category20 ]
 ]
 
 { #category : #accessing }
-UrNavigator >> colorScale: aColorScale [
+UrCanvasController >> colorScale: aColorScale [
 	colorScale := aColorScale
 ]
 
 { #category : #accessing }
-UrNavigator >> currentTheme [
+UrCanvasController >> currentTheme [
 	^ Smalltalk ui theme
 ]
 
 { #category : #visualization }
-UrNavigator >> edgeLengthFor: anEdge [
+UrCanvasController >> edgeLengthFor: anEdge [
 	^ (anEdge from encompassingRectangle halfPerimeter
 		+ anEdge to encompassingRectangle halfPerimeter) / 2
 ]
 
 { #category : #commands }
-UrNavigator >> executeAndRegisterCollapseIfPossible: aRSShape [
+UrCanvasController >> executeAndRegisterCollapseIfPossible: aRSShape [
 	| aCommand |
 	(self isMarkedAsExpanded: aRSShape) ifFalse: [ ^self ].
 
 	aCommand := UrCollapse new
-		navigator: self;
+		canvasController: self;
 		node: aRSShape;
 		yourself.
 	commandHistory executeAndRegister: aCommand.
 ]
 
 { #category : #commands }
-UrNavigator >> executeAndRegisterExpandIfPossible: aRSShape [
+UrCanvasController >> executeAndRegisterExpandIfPossible: aRSShape [
 	| aCommand |
 	(self isMarkedAsExpanded: aRSShape) ifTrue: [ ^self ].
 
 	aCommand := UrExpand new
-		navigator: self;
+		canvasController: self;
 		node: aRSShape;
 		yourself.
 	commandHistory executeAndRegister: aCommand.
 ]
 
 { #category : #commands }
-UrNavigator >> executeRedoIfPossible [
+UrCanvasController >> executeRedoIfPossible [
 	commandHistory canRedo ifTrue: [ commandHistory redo ]
 ]
 
 { #category : #commands }
-UrNavigator >> executeUndoIfPossible [
+UrCanvasController >> executeUndoIfPossible [
 	commandHistory canUndo ifTrue: [ commandHistory undo ]
 ]
 
 { #category : #'expanding-collapsing' }
-UrNavigator >> expand: aRSShape [
+UrCanvasController >> expand: aRSShape [
 	| nestedShapes |
 	nestedShapes := self newNestedShapesForAll: aRSShape model children.
 
@@ -238,7 +238,7 @@ UrNavigator >> expand: aRSShape [
 ]
 
 { #category : #'expanding-collapsing' }
-UrNavigator >> expand: aRSShape step: t [
+UrCanvasController >> expand: aRSShape step: t [
 	
 	| position |
 	position := aRSShape position.
@@ -256,17 +256,17 @@ UrNavigator >> expand: aRSShape step: t [
 ]
 
 { #category : #'expanding-collapsing' }
-UrNavigator >> expandDuration [
+UrCanvasController >> expandDuration [
 	^ 150 milliSeconds
 ]
 
 { #category : #animations }
-UrNavigator >> forceAlphaRangeAsArray [
+UrCanvasController >> forceAlphaRangeAsArray [
 	^ #(0 0.1)
 ]
 
 { #category : #visualization }
-UrNavigator >> highlightableForEdges [
+UrCanvasController >> highlightableForEdges [
 	^ highlightableForEdges ifNil: [
 		highlightableForEdges := RSHighlightable new
 			highlightColor: self currentTheme caretColor;
@@ -274,7 +274,7 @@ UrNavigator >> highlightableForEdges [
 ]
 
 { #category : #visualization }
-UrNavigator >> highlightableForShapes [
+UrCanvasController >> highlightableForShapes [
 	^ highlightableForShapes ifNil: [
 		highlightableForShapes := 
 			RSHighlightable new
@@ -289,7 +289,7 @@ UrNavigator >> highlightableForShapes [
 ]
 
 { #category : #initialization }
-UrNavigator >> initializeOn: aRSView [
+UrCanvasController >> initializeOn: aRSView [
 	self initialize.
 	
 	commandHistory := UrCommandHistory new.
@@ -326,33 +326,33 @@ UrNavigator >> initializeOn: aRSView [
 ]
 
 { #category : #'expanding-collapsing' }
-UrNavigator >> isMarkedAsExpanded: aRSShape [
+UrCanvasController >> isMarkedAsExpanded: aRSShape [
 	^ aRSShape propertyAt: #expanded ifAbsentPut: [ false ]
 ]
 
 { #category : #accessing }
-UrNavigator >> labelStrategy [
+UrCanvasController >> labelStrategy [
 	^ labelStrategy
 ]
 
 { #category : #accessing }
-UrNavigator >> labelStrategy: aHiMLabelStrategy [
+UrCanvasController >> labelStrategy: aHiMLabelStrategy [
 	labelStrategy := aHiMLabelStrategy.
-	aHiMLabelStrategy navigator: self.
+	aHiMLabelStrategy canvasController: self.
 ]
 
 { #category : #accessing }
-UrNavigator >> layout [
+UrCanvasController >> layout [
 	^ layout
 ]
 
 { #category : #'expanding-collapsing' }
-UrNavigator >> mark: aRSShape asExpanded: aBoolean [
+UrCanvasController >> mark: aRSShape asExpanded: aBoolean [
 	^ aRSShape propertyAt: #expanded put: aBoolean
 ]
 
 { #category : #visualization }
-UrNavigator >> newNestedShapesForAll: someHiMNodes [
+UrCanvasController >> newNestedShapesForAll: someHiMNodes [
 	^ someHiMNodes
 		collect: [ :each | 
 			RSLabel new
@@ -401,7 +401,7 @@ UrNavigator >> newNestedShapesForAll: someHiMNodes [
 ]
 
 { #category : #commands }
-UrNavigator >> processKeyDown: aRSKeyDownEvent [
+UrCanvasController >> processKeyDown: aRSKeyDownEvent [
 	aRSKeyDownEvent commandKeyPressed
 		ifFalse: [ ^ self ].
 	aRSKeyDownEvent keyValue = $z asciiValue
@@ -411,7 +411,7 @@ UrNavigator >> processKeyDown: aRSKeyDownEvent [
 ]
 
 { #category : #visualization }
-UrNavigator >> shapesFor: someHiMNodes [
+UrCanvasController >> shapesFor: someHiMNodes [
 	
 	| popup draggableForceInteraction proto |
 	popup := RSPopup new
@@ -437,12 +437,12 @@ UrNavigator >> shapesFor: someHiMNodes [
 ]
 
 { #category : #visualization }
-UrNavigator >> sizeFor: aHiMNode [
+UrCanvasController >> sizeFor: aHiMNode [
 	^ (10 * (aHiMNode children size + 1)) sqrt
 ]
 
 { #category : #animations }
-UrNavigator >> startForceAnimationFinitely [
+UrCanvasController >> startForceAnimationFinitely [
 	
 	self stopForceAnimation.
 
@@ -455,7 +455,7 @@ UrNavigator >> startForceAnimationFinitely [
 ]
 
 { #category : #animations }
-UrNavigator >> startForceAnimationInfinitely [
+UrCanvasController >> startForceAnimationInfinitely [
 	
 	self stopForceAnimation.
 	
@@ -477,12 +477,12 @@ UrNavigator >> startForceAnimationInfinitely [
 ]
 
 { #category : #animations }
-UrNavigator >> stopForceAnimation [
+UrCanvasController >> stopForceAnimation [
 	forceAnimation ifNotNil: #stop
 ]
 
 { #category : #'expanding-collapsing' }
-UrNavigator >> toggleEdge: aRSEdge [
+UrCanvasController >> toggleEdge: aRSEdge [
 	| isFromExpanded isToExpanded |
 	isFromExpanded := self isMarkedAsExpanded: aRSEdge from.
 	isToExpanded := self isMarkedAsExpanded: aRSEdge to.
@@ -499,14 +499,19 @@ UrNavigator >> toggleEdge: aRSEdge [
 ]
 
 { #category : #'expanding-collapsing' }
-UrNavigator >> toggleNode: aRSShape [
+UrCanvasController >> toggleNode: aRSShape [
 	(self isMarkedAsExpanded: aRSShape)
 		ifTrue: [ self executeAndRegisterCollapseIfPossible: aRSShape ]
 		ifFalse: [ self executeAndRegisterExpandIfPossible: aRSShape ]
 ]
 
 { #category : #accessing }
-UrNavigator >> topLevelNodes: someHiMNodes [
+UrCanvasController >> topLevelNodes [
+	^ topLevelNodes
+]
+
+{ #category : #accessing }
+UrCanvasController >> topLevelNodes: someHiMNodes [
 	topLevelNodes := someHiMNodes.
 
 ]

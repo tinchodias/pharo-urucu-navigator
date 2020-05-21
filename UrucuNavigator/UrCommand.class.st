@@ -2,17 +2,17 @@ Class {
 	#name : #UrCommand,
 	#superclass : #Object,
 	#instVars : [
-		'navigator'
+		'canvasController'
 	],
 	#category : #'UrucuNavigator-Commands'
 }
 
 { #category : #accessing }
-UrCommand >> navigator [
-	^ navigator
+UrCommand >> canvasController [
+	^ canvasController
 ]
 
 { #category : #accessing }
-UrCommand >> navigator: anObject [
-	navigator := anObject
+UrCommand >> canvasController: anObject [
+	canvasController := anObject
 ]

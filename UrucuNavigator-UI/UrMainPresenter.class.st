@@ -4,9 +4,9 @@ Class {
 	#instVars : [
 		'viewPresenter',
 		'searchPresenter',
-		'lastNavigator',
-		'packageNames',
-		'currentCanvas'
+		'currentCanvas',
+		'currentCanvasController',
+		'graphBuildingBlock'
 	],
 	#category : #'UrucuNavigator-UI-Spec'
 }
@@ -25,30 +25,16 @@ UrMainPresenter class >> defaultSpec [
 				
 ]
 
-{ #category : #examples }
-UrMainPresenter class >> example1 [ 
-	^ (self new
-		setModelBeforeInitialization: {'Hiedra'. 'Hiedra-Tests'. 'Athens-Cairo'. "'Growl'. 'Iceberg'"};
-		openWithSpec)
-		withWindowDo: [ :window | 
-			window
-				extent: 1000 @ 800;
-				title: self name ]
-]
-
 { #category : #private }
 UrMainPresenter >> fillCurrentCanvas [
 
-	| builder |
-	lastNavigator := UrNavigator newOn: currentCanvas.
-	lastNavigator labelStrategy: UrTopLabelStrategy new.
+	currentCanvasController := UrCanvasController newOn: currentCanvas.
+	currentCanvasController labelStrategy: UrTopLabelStrategy new.
 "	lastNavigator labelStrategy: UrFloatingLabelStrategy new."
-	builder := UrImageDependenciesBuilder new
-		navigator: lastNavigator;
-		packageNames: packageNames;
-		build.
 
-	searchPresenter searchModel topParentNodes: builder topLevelNodes.
+	graphBuildingBlock value: currentCanvasController.
+
+	searchPresenter searchModel topParentNodes: currentCanvasController topLevelNodes.
 	currentCanvas camera scale: 6.
 	currentCanvas when: RSMouseClick do: [ currentCanvas morph takeKeyboardFocus ].
 ]
@@ -135,7 +121,7 @@ UrMainPresenter >> highlightCurrentSearchResult [
 	highlightableForCurrentSearchResult highlightShape. "TODO: Needed to ensure a slot has been initialized."
 
 	topLevelElement := currentCanvas shapeFromModel: aHiMNode topParent.
-	lastNavigator executeAndRegisterExpandIfPossible: topLevelElement.
+	currentCanvasController executeAndRegisterExpandIfPossible: topLevelElement.
 
 	(topLevelElement shapeFromModel: aHiMNode)
 		ifNotNil: [ :element | 
@@ -168,8 +154,8 @@ UrMainPresenter >> initializePresenters [
 ]
 
 { #category : #private }
-UrMainPresenter >> setModelBeforeInitialization: somePackageNames [
-	packageNames := somePackageNames
+UrMainPresenter >> setModelBeforeInitialization: aGraphBuildingBlock [
+	graphBuildingBlock := aGraphBuildingBlock
 ]
 
 { #category : #'private - searching' }
