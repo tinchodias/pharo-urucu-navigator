@@ -2,8 +2,8 @@ Class {
 	#name : #UrLabelStrategy,
 	#superclass : #Object,
 	#instVars : [
-		'navigator',
-		'shapeBuilder'
+		'shapeBuilder',
+		'canvasController'
 	],
 	#category : #'UrucuNavigator-UI-Roassal3'
 }
@@ -12,36 +12,7 @@ Class {
 UrLabelStrategy >> applyAfterAddingElements: elements [
 ]
 
-{ #category : #applying }
-UrLabelStrategy >> applyBeforeCreatingElementsWith: shapeBuilder [
-
-]
-
 { #category : #accessing }
-UrLabelStrategy >> canvasController [
-	^ navigator
-]
-
-{ #category : #accessing }
-UrLabelStrategy >> canvasController: anObject [
-	navigator := anObject
-]
-
-{ #category : #accessing }
-UrLabelStrategy >> shapeBuilder [
-	^ shapeBuilder ifNil: [
-		shapeBuilder := RSShapeBuilder composite
-			shapes: [ :m | 
-				TSGroup with:
-					(TSLabel new
-						text: m asString;
-						color: (navigator currentTheme textColor alpha: 0.75);
-						yourself) ];
-			scaleBy: 0.15;
-			yourself ]
-]
-
-{ #category : #accessing }
-UrLabelStrategy >> shapeBuilder: aShapeBuilder [
-	shapeBuilder := aShapeBuilder
+UrLabelStrategy >> installOn: aUrCanvasController [
+	canvasController := aUrCanvasController
 ]

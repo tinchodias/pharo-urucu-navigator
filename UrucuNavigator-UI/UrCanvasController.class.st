@@ -10,7 +10,8 @@ Class {
 		'colorScale',
 		'canvas',
 		'highlightableForEdges',
-		'highlightableForShapes'
+		'highlightableForShapes',
+		'protoNodeShape'
 	],
 	#category : #'UrucuNavigator-UI-Roassal3'
 }
@@ -102,15 +103,13 @@ UrCanvasController >> addNestedEdgesFor: someRSElements [
 UrCanvasController >> addNodesFor: someHiMNodes [
 
 	| shapes |
-"
-	labelStrategy applyBeforeCreatingElementsWith: shapeBuilder.
-"	
+
 	shapes := self shapesFor: someHiMNodes.
 	canvas addAll: shapes.
 	layout addNodes: shapes.
 	self addEdgesFor: shapes.
 	
-"	labelStrategy applyAfterAddingElements: shapes."
+	labelStrategy applyAfterAddingElements: shapes.
 ]
 
 { #category : #accessing }
@@ -293,7 +292,6 @@ UrCanvasController >> initializeOn: aRSView [
 	self initialize.
 	
 	commandHistory := UrCommandHistory new.
-	self labelStrategy: UrTopLabelStrategy new.
 
 	canvas := aRSView.
 	canvas color: self currentTheme backgroundColor.
@@ -321,6 +319,17 @@ UrCanvasController >> initializeOn: aRSView [
 	canvas
 		when: RSKeyDown
 		do: [ :evt | self processKeyDown: evt ].
+
+	protoNodeShape := RSComposite new
+		addInteraction: (RSPopup new text: [ :each | each object ]; yourself);
+		addInteraction: (RSDraggableForce new layout: layout; yourself);
+		addInteraction: self highlightableForShapes;
+		when: RSMouseDragStart do: [:evt | evt shape pushFront. self startForceAnimationInfinitely ];
+		when: RSMouseDragEnd do: [:evt | self startForceAnimationFinitely ];
+		when: RSMouseDoubleClick do: [:evt | self toggleNode: evt shape ];
+		yourself.
+
+	self labelStrategy: UrTopLabelStrategy new.
 	
 	canvas addInteraction: RSGraphCanvasMonitor.
 ]
@@ -337,8 +346,9 @@ UrCanvasController >> labelStrategy [
 
 { #category : #accessing }
 UrCanvasController >> labelStrategy: aHiMLabelStrategy [
+	labelStrategy ifNotNil: [ labelStrategy uninstallFrom: self. ].
 	labelStrategy := aHiMLabelStrategy.
-	aHiMLabelStrategy canvasController: self.
+	labelStrategy installOn: self.
 ]
 
 { #category : #accessing }
@@ -410,25 +420,15 @@ UrCanvasController >> processKeyDown: aRSKeyDownEvent [
 		ifTrue: [ self executeRedoIfPossible ]
 ]
 
+{ #category : #accessing }
+UrCanvasController >> protoNodeShape [
+	^ protoNodeShape
+]
+
 { #category : #visualization }
 UrCanvasController >> shapesFor: someHiMNodes [
-	
-	| popup draggableForceInteraction proto |
-	popup := RSPopup new
-		text: [ :each | each object ];
-		yourself.
-	draggableForceInteraction := RSDraggableForce new layout: layout; yourself.
-	proto := RSComposite new
-		addInteraction: popup;
-		addInteraction: draggableForceInteraction;
-		addInteraction: self highlightableForShapes;
-		when: RSMouseDragStart do: [:evt | evt shape pushFront. self startForceAnimationInfinitely ];
-		when: RSMouseDragEnd do: [:evt | self startForceAnimationFinitely ];
-		when: RSMouseDoubleClick do: [:evt | self toggleNode: evt shape ];
-		yourself.
-
 	^ someHiMNodes collect: [ :aMNode |
-		proto copyWithAnnouncer
+		protoNodeShape copyWithAnnouncer
 			model: aMNode;
 			color: (self colorFor: aMNode);
 			size: (self sizeFor: aMNode);

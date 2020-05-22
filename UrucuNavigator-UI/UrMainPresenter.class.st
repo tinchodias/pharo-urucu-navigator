@@ -29,9 +29,6 @@ UrMainPresenter class >> defaultSpec [
 UrMainPresenter >> fillCurrentCanvas [
 
 	currentCanvasController := UrCanvasController newOn: currentCanvas.
-	currentCanvasController labelStrategy: UrTopLabelStrategy new.
-"	lastNavigator labelStrategy: UrFloatingLabelStrategy new."
-
 	graphBuildingBlock value: currentCanvasController.
 
 	searchPresenter searchModel topParentNodes: currentCanvasController topLevelNodes.
@@ -46,12 +43,12 @@ UrMainPresenter >> highlightAllSearchResults [
 	allSearchResults := searchPresenter lastResultModel nodes.
 
 	highlightableForCurrentSearchResult := RSHighlightable new
-		highlightShapes: [ :each | {each attributeAt: #RSLabeled} ];
+		highlightShapes: [ :each | {each propertyAt: #RSLabeled} ];
 		propertyKey: #allSearchResults;
 		when: RSHighlightEvent do: [ :evt |
-			self highlightCompositeElementWithLabel: evt element intensity: 0.5 ];
+			self highlightCompositeElementWithLabel: evt shape intensity: 0.5 ];
 		when: RSUnHighlightEvent do: [ :evt |
-			self unhighlightCompositeElementWithLabel: evt element ].
+			self unhighlightCompositeElementWithLabel: evt shape ].
 	
 	elementsForAllSearchResults := allSearchResults
 		collect: [:each | currentCanvas shapeFromModel: each ]
@@ -67,20 +64,20 @@ UrMainPresenter >> highlightAllSearchResults [
 ]
 
 { #category : #'private - searching' }
-UrMainPresenter >> highlightCompositeElementWithLabel: element intensity: k [
+UrMainPresenter >> highlightCompositeElementWithLabel: aRSCompositeShape intensity: k [
 
 	| ranges font label highlightColor searchedText highlightShapeBuilder backgroundColor |
 	"search result model"
-	label := element shapes last.
+	label := aRSCompositeShape shapes last.
 	searchedText := searchPresenter searchModel text.
 	ranges := label text allRangesOfSubstring: searchedText.
 
 	"visualize"
 	highlightColor := self theme warningTextColor.
 	backgroundColor := self theme backgroundColor alpha: 0.5.
-	element color: backgroundColor.
-	element border: (RSBorder new color: (highlightColor alpha: k); width: 3 * k; yourself).
-	element pushFront.
+	aRSCompositeShape color: backgroundColor.
+	aRSCompositeShape border: (RSBorder new color: (highlightColor alpha: k); width: 3 * k; yourself).
+	aRSCompositeShape pushFront.
 
 	highlightShapeBuilder := RSBox new
 		color: (highlightColor alpha: k * 0.5);
@@ -96,7 +93,7 @@ UrMainPresenter >> highlightCompositeElementWithLabel: element intensity: k [
 		partial := font widthOfString: (label text copyFrom: 1 to: (interval first - 1)).
 		x := partial + ((boxElement width - label width) / 2) - 2.
 		boxElement position: x@0.
-		element shapes addFirst: boxElement ]
+		aRSCompositeShape shapes addFirst: boxElement ]
 
 ]
 

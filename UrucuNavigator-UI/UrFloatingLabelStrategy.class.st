@@ -14,13 +14,13 @@ UrFloatingLabelStrategy >> applyAfterAddingElements: elements [
 		| label edge mockEdge |
 		label := self shapeBuilder elementOn: each model object.
 		edge := self edgeBuilder "withBorderAttachPoint" from: each; to: label; edge.
-		navigator canvas add: label; add: edge.
-		navigator layout
+		canvasController canvas add: label; add: edge.
+		canvasController layout
 			addNodes: { label };
 			addEdges: { edge }.
-		mockEdge := navigator layout mockEdgeAt: edge.
+		mockEdge := canvasController layout mockEdgeAt: edge.
 		mockEdge 
-			length: (navigator edgeLengthFor: edge);
+			length: (canvasController edgeLengthFor: edge);
 			strength: 5. ]
 
 	
@@ -31,7 +31,7 @@ UrFloatingLabelStrategy >> edgeBuilder [
 	^ edgeBuilder ifNil: [
 		edgeBuilder := RSSingleEdgeBuilder line
 			width: 0.25;
-			color: (navigator currentTheme textColor alpha: 0.25);
+			color: (canvasController currentTheme textColor alpha: 0.25);
 			dashArray: #(0.25);
 			yourself ]
 
@@ -40,4 +40,18 @@ UrFloatingLabelStrategy >> edgeBuilder [
 { #category : #accessing }
 UrFloatingLabelStrategy >> edgeBuilder: anObject [
 	edgeBuilder := anObject
+]
+
+{ #category : #accessing }
+UrFloatingLabelStrategy >> shapeBuilder [
+	^ shapeBuilder ifNil: [
+		shapeBuilder := RSShapeBuilder composite
+			shapes: [ :m | 
+				TSGroup with:
+					(TSLabel new
+						text: m asString;
+						color: (canvasController currentTheme textColor alpha: 0.75);
+						yourself) ];
+			scaleBy: 0.15;
+			yourself ]
 ]
