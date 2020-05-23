@@ -11,7 +11,8 @@ Class {
 		'canvas',
 		'highlightableForEdges',
 		'highlightableForShapes',
-		'protoNodeShape'
+		'protoNodeShape',
+		'labeledInteraction'
 	],
 	#category : #'UrucuNavigator-UI-Roassal3'
 }
@@ -108,8 +109,7 @@ UrCanvasController >> addNodesFor: someHiMNodes [
 	canvas addAll: shapes.
 	layout addNodes: shapes.
 	self addEdgesFor: shapes.
-	
-	labelStrategy applyAfterAddingElements: shapes.
+
 ]
 
 { #category : #accessing }
@@ -273,7 +273,7 @@ UrCanvasController >> highlightableForEdges [
 ]
 
 { #category : #visualization }
-UrCanvasController >> highlightableForShapes [
+UrCanvasController >> hoverInteraction [
 	^ highlightableForShapes ifNil: [
 		highlightableForShapes := 
 			RSHighlightable new
@@ -315,23 +315,25 @@ UrCanvasController >> initializeOn: aRSView [
 			corner := camera fromPixelToSpace: canvas canvas extent.
 			layout enclosingRectangle: (origin corner: corner).
 			self startForceAnimationFinitely ].
-	
+
+	"Listen for key bindings"	
 	canvas
 		when: RSKeyDown
 		do: [ :evt | self processKeyDown: evt ].
 
+	canvas addInteraction: RSGraphCanvasMonitor.
+	
+	"Initialize stuff for node shapes"
 	protoNodeShape := RSComposite new
 		addInteraction: (RSPopup new text: [ :each | each object ]; yourself);
 		addInteraction: (RSDraggableForce new layout: layout; yourself);
-		addInteraction: self highlightableForShapes;
+		addInteraction: self labeledInteraction;
+		addInteraction: self hoverInteraction;
 		when: RSMouseDragStart do: [:evt | evt shape pushFront. self startForceAnimationInfinitely ];
 		when: RSMouseDragEnd do: [:evt | self startForceAnimationFinitely ];
 		when: RSMouseDoubleClick do: [:evt | self toggleNode: evt shape ];
 		yourself.
 
-	self labelStrategy: UrTopLabelStrategy new.
-	
-	canvas addInteraction: RSGraphCanvasMonitor.
 ]
 
 { #category : #'expanding-collapsing' }
@@ -344,11 +346,19 @@ UrCanvasController >> labelStrategy [
 	^ labelStrategy
 ]
 
-{ #category : #accessing }
-UrCanvasController >> labelStrategy: aHiMLabelStrategy [
-	labelStrategy ifNotNil: [ labelStrategy uninstallFrom: self. ].
-	labelStrategy := aHiMLabelStrategy.
-	labelStrategy installOn: self.
+{ #category : #initialization }
+UrCanvasController >> labeledInteraction [
+	^ labeledInteraction ifNil: [
+		labeledInteraction := UrRSLabeledInteraction new
+			labelFactoryBlock: [ :aShape |
+				RSComposite new
+					shapes: {
+						RSLabel new
+							text: aShape model object asString;
+							scaleBy: 0.15;
+							yourself };
+					yourself ];
+			yourself ]
 ]
 
 { #category : #accessing }

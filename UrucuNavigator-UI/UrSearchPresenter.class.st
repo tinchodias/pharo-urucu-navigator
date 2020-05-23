@@ -1,5 +1,5 @@
 "
-self new openWithSpec.
+I'm a Spec presenter to control a search of nodes.
 "
 Class {
 	#name : #UrSearchPresenter,
@@ -60,7 +60,7 @@ UrSearchPresenter >> goToNextResult [
 UrSearchPresenter >> goToPreviousResult [
 	lastResultModel goToPreviousResult.
 	newCurrentResultBlock value.
-	self refresh.
+	self refresh
 ]
 
 { #category : #accessing }
@@ -72,7 +72,7 @@ UrSearchPresenter >> highlightAllEnabled: aBoolean [
 ]
 
 { #category : #initialization }
-UrSearchPresenter >> initializeWidgets [
+UrSearchPresenter >> initializePresenters [
 	
 	textInput := (self instantiate: SpTextInputFieldPresenter)
 "		autoAccept: true;"
@@ -129,8 +129,8 @@ UrSearchPresenter >> lastResultModel [
 ]
 
 { #category : #accessing }
-UrSearchPresenter >> newResultIndexBlock: anObject [
-	newCurrentResultBlock := anObject
+UrSearchPresenter >> newResultIndexBlock: aBlockClosure [
+	newCurrentResultBlock := aBlockClosure
 ]
 
 { #category : #accessing }
