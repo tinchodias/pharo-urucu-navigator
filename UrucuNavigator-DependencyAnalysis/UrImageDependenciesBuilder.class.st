@@ -27,8 +27,9 @@ UrImageDependenciesBuilder >> build [
 { #category : #accessing }
 UrImageDependenciesBuilder >> buildColorScale [
 
-	| tmpScale nodes |
-	tmpScale := NSScale category20.
+	| tmpScale internalColor nodes |
+	tmpScale := RSColorPalette qualitative set311.
+	internalColor := tmpScale scale: nil.
 	nodes := self topLevelNodes asArray.
 	
 	colorScale := NSScale ordinal
@@ -36,7 +37,7 @@ UrImageDependenciesBuilder >> buildColorScale [
 		range: (nodes collect: [:each | 
 			| color |
 			color := (packageNames includes: each object)
-				ifTrue: [ canvasController currentTheme caretColor ]
+				ifTrue: [ internalColor ]
 				ifFalse: [ (tmpScale scale: (each object readStream upTo: $-)) mixed: 0.75 with: canvasController currentTheme backgroundColor ].
 			color ]);
 		yourself.
