@@ -349,8 +349,9 @@ UrCanvasController >> labelStrategy [
 { #category : #initialization }
 UrCanvasController >> labeledInteraction [
 	^ labeledInteraction ifNil: [
-		labeledInteraction := UrRSLabeledInteraction new
-			labelFactoryBlock: [ :aShape |
+		labeledInteraction := RSLabeled new
+			model: #yourself;
+			shapeBuilder: [ :aShape |
 				RSComposite new
 					shapes: {
 						RSLabel new

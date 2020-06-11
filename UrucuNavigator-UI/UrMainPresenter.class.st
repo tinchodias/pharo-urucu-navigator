@@ -42,7 +42,7 @@ UrMainPresenter >> fillCurrentCanvas [
 	
 	highlightableForCurrentSearchResult := RSHighlightable new
 		propertyKey: #searchResult;
-		highlightShapes: [ :each | {each propertyAt: #UrRSLabeledInteraction} ];
+		highlightShapes: [ :each | {each propertyAt: #RSLabeled} ];
 		when: RSHighlightEvent do: [ :evt |
 			self highlightSearchResultOn: evt shape intensity: 1 ];
 		when: RSUnHighlightEvent do: [ :evt |
@@ -51,7 +51,7 @@ UrMainPresenter >> fillCurrentCanvas [
 				self highlightSearchResultOn: evt shape intensity: 0.5 ] ].
 
 	highlightableForAllSearchResults := RSHighlightable new
-		highlightShapes: [ :each | {each propertyAt: #UrRSLabeledInteraction} ];
+		highlightShapes: [ :each | {each propertyAt: #RSLabeled} ];
 		propertyKey: #allSearchResults;
 		when: RSHighlightEvent do: [ :evt |
 			self highlightSearchResultOn: evt shape intensity: 0.5 ];
