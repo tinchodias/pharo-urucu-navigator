@@ -26,6 +26,10 @@ See `RSRectangleRepulsionForceLayout` examples on class-side.
 
 ---
 
+## License
+
+The code is licensed under [MIT](LICENSE).
+
 ## What is *urucu*?
 
 Urucú is one of the names of [this tree and fruit](https://es.wikipedia.org/wiki/Bixa_orellana) in South America:
