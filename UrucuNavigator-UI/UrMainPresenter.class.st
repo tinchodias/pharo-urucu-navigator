@@ -9,11 +9,11 @@ Class {
 		'searchPresenter',
 		'currentCanvas',
 		'currentCanvasController',
-		'graphBuildingBlock',
 		'highlightableForCurrentSearchResult',
-		'highlightableForAllSearchResults'
+		'highlightableForAllSearchResults',
+		'mainModel'
 	],
-	#category : #'UrucuNavigator-UI-Spec'
+	#category : #'UrucuNavigator-UI-Core'
 }
 
 { #category : #specs }
@@ -33,11 +33,12 @@ UrMainPresenter class >> defaultSpec [
 { #category : #private }
 UrMainPresenter >> fillCurrentCanvas [
 
-	currentCanvasController := UrCanvasController newOn: currentCanvas.
-	graphBuildingBlock value: currentCanvasController.
+	currentCanvasController := UrCanvasController
+		newOn: currentCanvas
+		visualStrategy: mainModel visualStrategy.
+	mainModel setupController: currentCanvasController.
 
 	searchPresenter searchModel topParentNodes: currentCanvasController topLevelNodes.
-	currentCanvas camera scale: 6.
 	currentCanvas when: RSMouseClick do: [ currentCanvas morph takeKeyboardFocus ].
 	
 	highlightableForCurrentSearchResult := RSHighlightable new
@@ -51,13 +52,12 @@ UrMainPresenter >> fillCurrentCanvas [
 				self highlightSearchResultOn: evt shape intensity: 0.5 ] ].
 
 	highlightableForAllSearchResults := RSHighlightable new
-		highlightShapes: [ :each | {each propertyAt: #RSLabeled} ];
 		propertyKey: #allSearchResults;
+		highlightShapes: [ :each | {each propertyAt: #RSLabeled} ];
 		when: RSHighlightEvent do: [ :evt |
 			self highlightSearchResultOn: evt shape intensity: 0.5 ];
 		when: RSUnHighlightEvent do: [ :evt |
 			self unhighlightSearchResultOn: evt shape ].
-	
 
 ]
 
@@ -137,8 +137,8 @@ UrMainPresenter >> initializePresenters [
 ]
 
 { #category : #private }
-UrMainPresenter >> setModelBeforeInitialization: aGraphBuildingBlock [
-	graphBuildingBlock := aGraphBuildingBlock
+UrMainPresenter >> setModelBeforeInitialization: aUrMainModel [
+	mainModel := aUrMainModel
 ]
 
 { #category : #'private - searching' }

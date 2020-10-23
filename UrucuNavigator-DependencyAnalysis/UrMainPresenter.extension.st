@@ -3,15 +3,13 @@ Extension { #name : #UrMainPresenter }
 { #category : #'*UrucuNavigator-DependencyAnalysis' }
 UrMainPresenter class >> example1 [
 
-	| block |
-	block := [ :aCanvasController |
-		UrImageDependenciesBuilder new
-			canvasController: aCanvasController;
-			packageNames: {'Hiedra'. 'Hiedra-Tests'. 'Athens-Cairo'. "'Growl'. 'Iceberg'"};
-			build ].
+	| model |
+	model := UrImageDependenciesMainModel new
+		internalPackageNames: {'Hiedra'. 'Hiedra-Tests'. 'Athens-Cairo'. "'Growl'. 'Iceberg'"};
+		yourself.
 
 	^ (self new
-		setModelBeforeInitialization: block;
+		setModelBeforeInitialization: model;
 		openWithSpec)
 		withWindowDo: [ :window | 
 			window

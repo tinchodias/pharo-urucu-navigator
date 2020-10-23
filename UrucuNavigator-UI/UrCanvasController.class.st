@@ -4,17 +4,13 @@ Class {
 	#instVars : [
 		'layout',
 		'commandHistory',
-		'labelStrategy',
 		'topLevelNodes',
 		'forceAnimation',
-		'colorScale',
 		'canvas',
-		'highlightableForEdges',
-		'highlightableForShapes',
 		'protoNodeShape',
-		'labeledInteraction'
+		'visualStrategy'
 	],
-	#category : #'UrucuNavigator-UI-Roassal3'
+	#category : #'UrucuNavigator-UI-Core'
 }
 
 { #category : #examples }
@@ -23,9 +19,10 @@ UrCanvasController class >> new [
 ]
 
 { #category : #examples }
-UrCanvasController class >> newOn: aRSCanvas [
+UrCanvasController class >> newOn: aRSCanvas visualStrategy: aUrVisualStrategy [
 	^ self basicNew
-		initializeOn: aRSCanvas;
+		initializeOn: aRSCanvas
+			visualStrategy: aUrVisualStrategy;
 		yourself
 ]
 
@@ -33,14 +30,13 @@ UrCanvasController class >> newOn: aRSCanvas [
 UrCanvasController >> addEdgesFor: someRSShapes [
 
 	| edgeBuilder edges |
-	edgeBuilder := RSEdgeBuilder line
+	edgeBuilder := visualStrategy newEdgeBuilderForTopLevelElements
 		canvas: canvas;
-		color: (self currentTheme caretColor alpha: 0.25);
 		yourself.
 		
 	edgeBuilder shape
 		popupText: [:model | model key object asString, '->', model value object asString ];
-		addInteraction: self highlightableForEdges;
+		addInteraction: visualStrategy hoverInteractionForEdges;
 		when: RSMouseDoubleClick do: [:evt | self toggleEdge: evt shape ].
 
 	"Dependencies"
@@ -64,7 +60,7 @@ UrCanvasController >> addEdgesFor: someRSShapes [
 
 	layout addEdges: edges.
 	edges do: [ :anEdge |
-		(layout mockEdgeAt: anEdge) length: (self edgeLengthFor: anEdge) ].
+		(layout mockEdgeAt: anEdge) length: (visualStrategy edgeLengthFor: anEdge) ].
 	
 	edges do: #pushBack.
 
@@ -74,14 +70,9 @@ UrCanvasController >> addEdgesFor: someRSShapes [
 UrCanvasController >> addNestedEdgesFor: someRSElements [
 
 	| edgeBuilder |
-	edgeBuilder := RSEdgeBuilder line
+	edgeBuilder := visualStrategy newEdgeBuilderForNestedElements
 		canvas: canvas;
-		color: (self currentTheme caretColor alpha: 0.15);
-		width: 0.5;
-"		interactionDo: [ :interactionBuilder |
-			interactionBuilder
-				popupText: [:model | model key model object asString, '->', model value model object asString ] ];
-"		yourself.
+		yourself.
 
 	"Dependencies"
 	someRSElements do: [ :toElement |
@@ -100,21 +91,15 @@ UrCanvasController >> addNestedEdgesFor: someRSElements [
 
 ]
 
-{ #category : #visualization }
-UrCanvasController >> addNodesFor: someHiMNodes [
-
-	| shapes |
-
-	shapes := self shapesFor: someHiMNodes.
-	canvas addAll: shapes.
-	layout addNodes: shapes.
-	self addEdgesFor: shapes.
-
-]
-
 { #category : #accessing }
-UrCanvasController >> build [
-	self addNodesFor: topLevelNodes.
+UrCanvasController >> addTopLevelNodes: someHiMNodes [
+
+	| newShapes |
+	topLevelNodes addAll: someHiMNodes.
+	newShapes := self shapesFor: someHiMNodes.
+	canvas addAll: newShapes.
+	layout addNodes: newShapes.
+	self addEdgesFor: newShapes.
 	self startForceAnimationFinitely.
 ]
 
@@ -124,54 +109,12 @@ UrCanvasController >> canvas [
 ]
 
 { #category : #'expanding-collapsing' }
-UrCanvasController >> collapse: aRSElement [ 
-	| endSize |
-	endSize := self sizeFor: aRSElement model.
+UrCanvasController >> collapse: aRSShape [
 
 	self startForceAnimationFinitely.
+	self startCollapseAnimationOn: aRSShape.
+	self mark: aRSShape asExpanded: false.
 
-	aRSElement newAnimation
-		duration: self expandDuration;
-		from: 1@1;
-		to: endSize/aRSElement extent;
-		onStepDo: [ :t | self expand: aRSElement step: t ];
-		when: RSAnimationEndEvent do: [ | position |
-			aRSElement children copy do: [ :each |
-				each connectedEdges copy do: #remove.
-				each remove ].
-			position := aRSElement position.
-			aRSElement matrix
-				loadIdentity;
-				translation: position.
-			aRSElement size: endSize ].
-
-	self mark: aRSElement asExpanded: false.
-]
-
-{ #category : #visualization }
-UrCanvasController >> colorFor: aHiMNode [
-	^ self colorScale scale: aHiMNode topParent
-]
-
-{ #category : #accessing }
-UrCanvasController >> colorScale [
-	^ colorScale ifNil: [ colorScale := NSScale category20 ]
-]
-
-{ #category : #accessing }
-UrCanvasController >> colorScale: aColorScale [
-	colorScale := aColorScale
-]
-
-{ #category : #accessing }
-UrCanvasController >> currentTheme [
-	^ Smalltalk ui theme
-]
-
-{ #category : #visualization }
-UrCanvasController >> edgeLengthFor: anEdge [
-	^ (anEdge from encompassingRectangle halfPerimeter
-		+ anEdge to encompassingRectangle halfPerimeter) / 2
 ]
 
 { #category : #commands }
@@ -226,17 +169,12 @@ UrCanvasController >> expand: aRSShape [
 	self addNestedEdgesFor: nestedShapes.
 
 	self startForceAnimationFinitely.
-
-	aRSShape newAnimation
-		duration: self expandDuration;
-		from: (self sizeFor: aRSShape model) / aRSShape extent;
-		to: 1@1;
-		onStepDo: [ :t | self expand: aRSShape step: t ].
+	self startExpandAnimationOn: aRSShape.
 
 	self mark: aRSShape asExpanded: true.
 ]
 
-{ #category : #'expanding-collapsing' }
+{ #category : #animations }
 UrCanvasController >> expand: aRSShape step: t [
 	
 	| position |
@@ -250,11 +188,11 @@ UrCanvasController >> expand: aRSShape step: t [
 		layout edges
 			detect: [ :each | each realEdge == anEdge ]
 			ifFound: [ :mockEdge |
-				mockEdge length: (self edgeLengthFor: anEdge) ]
+				mockEdge length: (visualStrategy edgeLengthFor: anEdge) ]
 		 ]
 ]
 
-{ #category : #'expanding-collapsing' }
+{ #category : #animations }
 UrCanvasController >> expandDuration [
 	^ 150 milliSeconds
 ]
@@ -264,46 +202,20 @@ UrCanvasController >> forceAlphaRangeAsArray [
 	^ #(0 0.1)
 ]
 
-{ #category : #visualization }
-UrCanvasController >> highlightableForEdges [
-	^ highlightableForEdges ifNil: [
-		highlightableForEdges := RSHighlightable new
-			highlightColor: self currentTheme caretColor;
-			yourself ]
-]
-
-{ #category : #visualization }
-UrCanvasController >> hoverInteraction [
-	^ highlightableForShapes ifNil: [
-		highlightableForShapes := 
-			RSHighlightable new
-				highlightColor: [ :shape |
-					shape color adjustBrightness: 0.16 ];
-				highlightBorder: [ :shape |
-					RSBorder new
-						color: self currentTheme textColor;
-						width: 0.3;
-						yourself ];
-				yourself ]
-]
-
 { #category : #initialization }
-UrCanvasController >> initializeOn: aRSView [
+UrCanvasController >> initializeOn: aRSCanvas visualStrategy: aUrVisualStrategy [
 	self initialize.
-	
+
+	visualStrategy := aUrVisualStrategy.
 	commandHistory := UrCommandHistory new.
+	topLevelNodes := OrderedCollection new.
 
-	canvas := aRSView.
-	canvas color: self currentTheme backgroundColor.
+	canvas := aRSCanvas.
+	visualStrategy setupCanvas: aRSCanvas.
 
-	layout := RSRectangleForceLayout new
-		start;
-		charge: -60;
-		friction: 0.25;
-		gravity: 0.1;
-		enclosingForce: 1;
-		enclosingThreshold: 20;
-		yourself.
+	layout := RSRectangleForceLayout new.
+	visualStrategy setupLayout: layout.
+	layout start.
 
 	"Apply forces from the window borders to the elements."
 	canvas
@@ -321,14 +233,12 @@ UrCanvasController >> initializeOn: aRSView [
 		when: RSKeyDown
 		do: [ :evt | self processKeyDown: evt ].
 
-	canvas addInteraction: RSGraphCanvasMonitor.
-	
 	"Initialize stuff for node shapes"
 	protoNodeShape := RSComposite new
 		addInteraction: (RSPopup new text: [ :each | each object ]; yourself);
 		addInteraction: (RSDraggableForce new layout: layout; yourself);
-		addInteraction: self labeledInteraction;
-		addInteraction: self hoverInteraction;
+		addInteraction: visualStrategy labelInteraction;
+		addInteraction: visualStrategy hoverInteractionForShapes;
 		when: RSMouseDragStart do: [:evt | evt shape pushFront. self startForceAnimationInfinitely ];
 		when: RSMouseDragEnd do: [:evt | self startForceAnimationFinitely ];
 		when: RSMouseDoubleClick do: [:evt | self toggleNode: evt shape ];
@@ -342,27 +252,6 @@ UrCanvasController >> isMarkedAsExpanded: aRSShape [
 ]
 
 { #category : #accessing }
-UrCanvasController >> labelStrategy [
-	^ labelStrategy
-]
-
-{ #category : #initialization }
-UrCanvasController >> labeledInteraction [
-	^ labeledInteraction ifNil: [
-		labeledInteraction := RSLabeled new
-			model: #yourself;
-			shapeBuilder: [ :aShape |
-				RSComposite new
-					shapes: {
-						RSLabel new
-							text: aShape model object asString;
-							scaleBy: 0.15;
-							yourself };
-					yourself ];
-			yourself ]
-]
-
-{ #category : #accessing }
 UrCanvasController >> layout [
 	^ layout
 ]
@@ -373,51 +262,9 @@ UrCanvasController >> mark: aRSShape asExpanded: aBoolean [
 ]
 
 { #category : #visualization }
-UrCanvasController >> newNestedShapesForAll: someHiMNodes [
-	^ someHiMNodes
-		collect: [ :each | 
-			RSLabel new
-				scaleBy: 0.15;
-				model: each;
-				text: each object asString;
-				yourself ].
-			
-		
-"	| builder renderer color |
-	builder := RSUMLClassBuilder new.
-	renderer := builder renderer.
-	color := self currentTheme textColor.
-	renderer border color: color.
-	renderer methodShape color: color.
-	renderer classNameShape color: color.
-		
-	builder modelDescriptor
-		classname: #object;
-		instVars: #();
-		methods: [ :aHiMNode |
-
-
-			| limit methods |
-			limit := 5.
-			methods := aHiMNode children collect: [:each | each object value ].
-			methods size < limit ifFalse: [
-				methods := (methods first: limit) copyWith: '...' ].
-			methods
-
-			
-			];
-		methodSelector: #asString.
-	builder shape: (RSComposite new
-		popupText: #object;
-		shapes: [ :m | builder createShapesFor: m ]).
-	builder shape scaleBy: 0.08.
-	builder renderer classBoxShape
-		color: [ :node | self currentTheme backgroundColor alpha: 0.9 ];
-		cornerRadius: 3.
-
-	^ builder shape elementsOn: someHiMNodes
-	
-	"
+UrCanvasController >> newNestedShapesForAll: someUrNodes [
+	^ someUrNodes collect: [ :each | 
+		visualStrategy newShapeForNestedNode: each ]
 
 ]
 
@@ -437,19 +284,47 @@ UrCanvasController >> protoNodeShape [
 ]
 
 { #category : #visualization }
-UrCanvasController >> shapesFor: someHiMNodes [
-	^ someHiMNodes collect: [ :aMNode |
+UrCanvasController >> shapesFor: someUrNodes [
+	^ someUrNodes collect: [ :node |
 		protoNodeShape copyWithAnnouncer
-			model: aMNode;
-			color: (self colorFor: aMNode);
-			size: (self sizeFor: aMNode);
-			yourself ].
+			model: node;
+			color: (visualStrategy colorFor: node);
+			size: (visualStrategy sizeFor: node);
+			yourself ]
 
 ]
 
-{ #category : #visualization }
-UrCanvasController >> sizeFor: aHiMNode [
-	^ (10 * (aHiMNode children size + 1)) sqrt
+{ #category : #animations }
+UrCanvasController >> startCollapseAnimationOn: aRSShape [
+	| endSize |
+	endSize := visualStrategy sizeFor: aRSShape model.
+
+	aRSShape newAnimation
+		duration: self expandDuration;
+		from: 1@1;
+		to: endSize / aRSShape extent;
+		onStepDo: [ :t | self expand: aRSShape step: t ];
+		when: RSAnimationEndEvent do: [ | position |
+			aRSShape children copy do: [ :each |
+				each connectedEdges copy do: #remove.
+				each remove ].
+			position := aRSShape position.
+			aRSShape matrix
+				loadIdentity;
+				translation: position.
+			aRSShape size: endSize ].
+
+]
+
+{ #category : #animations }
+UrCanvasController >> startExpandAnimationOn: aRSShape [
+
+	aRSShape newAnimation
+		duration: self expandDuration;
+		from: (visualStrategy sizeFor: aRSShape model) / aRSShape extent;
+		to: 1@1;
+		onStepDo: [ :t | self expand: aRSShape step: t ].
+
 ]
 
 { #category : #animations }
@@ -519,10 +394,4 @@ UrCanvasController >> toggleNode: aRSShape [
 { #category : #accessing }
 UrCanvasController >> topLevelNodes [
 	^ topLevelNodes
-]
-
-{ #category : #accessing }
-UrCanvasController >> topLevelNodes: someHiMNodes [
-	topLevelNodes := someHiMNodes.
-
 ]

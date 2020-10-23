@@ -17,7 +17,7 @@ Class {
 		'highlightAllEnabled',
 		'toggledHighlightAllBlock'
 	],
-	#category : #'UrucuNavigator-UI-Spec'
+	#category : #'UrucuNavigator-UI-Core'
 }
 
 { #category : #specs }

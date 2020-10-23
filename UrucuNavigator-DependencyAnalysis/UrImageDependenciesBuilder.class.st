@@ -5,46 +5,12 @@ Class {
 		'packageNames',
 		'relationGraph',
 		'nodeByDAPackage',
-		'nodeByBehavior',
-		'colorScale',
-		'canvasController'
+		'nodeByBehavior'
 	],
 	#category : #'UrucuNavigator-DependencyAnalysis'
 }
 
-{ #category : #accessing }
-UrImageDependenciesBuilder >> build [
-	self buildTopLevelNodes.
-	self buildColorScale.
-	
-	canvasController 
-		topLevelNodes: self topLevelNodes;
-		colorScale: self colorScale;
-		build.
-
-]
-
-{ #category : #accessing }
-UrImageDependenciesBuilder >> buildColorScale [
-
-	| tmpScale internalColor nodes |
-	tmpScale := RSColorPalette qualitative set311.
-	internalColor := tmpScale scale: nil.
-	nodes := self topLevelNodes asArray.
-	
-	colorScale := NSScale ordinal
-		domain: nodes;
-		range: (nodes collect: [:each | 
-			| color |
-			color := (packageNames includes: each object)
-				ifTrue: [ internalColor ]
-				ifFalse: [ (tmpScale scale: (each object readStream upTo: $-)) mixed: 0.75 with: canvasController currentTheme backgroundColor ].
-			color ]);
-		yourself.
-
-]
-
-{ #category : #accessing }
+{ #category : #building }
 UrImageDependenciesBuilder >> buildTopLevelNodes [
 	relationGraph := DAPackageRelationGraph onPackagesNamed: packageNames.
 	relationGraph build.
@@ -61,16 +27,6 @@ UrImageDependenciesBuilder >> buildTopLevelNodes [
 "
 		aDAPackage dependencies do: [:each | each accept: self ] ]
 
-]
-
-{ #category : #accessing }
-UrImageDependenciesBuilder >> canvasController: anObject [
-	canvasController := anObject
-]
-
-{ #category : #accessing }
-UrImageDependenciesBuilder >> colorScale [
-	^ colorScale
 ]
 
 { #category : #private }
@@ -111,7 +67,7 @@ UrImageDependenciesBuilder >> ensureAddNodeForPackage: aDAPackage [
 		ifAbsentPut: [ UrNode for: aDAPackage packageName ]
 ]
 
-{ #category : #accessing }
+{ #category : #initialization }
 UrImageDependenciesBuilder >> initialize [
 	super initialize.
 	
@@ -120,13 +76,8 @@ UrImageDependenciesBuilder >> initialize [
 ]
 
 { #category : #accessing }
-UrImageDependenciesBuilder >> packageNames [
-	^ packageNames
-]
-
-{ #category : #accessing }
-UrImageDependenciesBuilder >> packageNames: anObject [
-	packageNames := anObject
+UrImageDependenciesBuilder >> internalPackageNames: aCollection [
+	packageNames := aCollection
 ]
 
 { #category : #accessing }
