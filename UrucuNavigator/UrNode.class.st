@@ -17,18 +17,18 @@ UrNode class >> for: anObject [
 ]
 
 { #category : #accessing }
-UrNode >> addChild: aHiMNode [
-	aHiMNode basicParent: self.
-	children add: aHiMNode.
+UrNode >> addChild: anotherNode [
+	anotherNode basicParent: self.
+	children add: anotherNode.
 ]
 
 { #category : #accessing }
-UrNode >> addOutgoingLinkTo: anotherHiMNode [
+UrNode >> addOutgoingLinkTo: anotherNode [
 	
 	| link |
-	link := UrLink from: self to: anotherHiMNode.
+	link := UrLink from: self to: anotherNode.
 	self basicAddOutgoingLink: link.
-	anotherHiMNode basicAddIncomingLink: link.
+	anotherNode basicAddIncomingLink: link.
 	^ link
 ]
 
@@ -67,8 +67,8 @@ UrNode >> basicAddOutgoingLink: link [
 ]
 
 { #category : #accessing }
-UrNode >> basicParent: anotherHiMNode [
-	parent := anotherHiMNode
+UrNode >> basicParent: anotherNode [
+	parent := anotherNode
 ]
 
 { #category : #accessing }

@@ -10,9 +10,9 @@ Class {
 }
 
 { #category : #accessing }
-UrImageDependenciesVisualStrategy >> colorFor: aHiMNode [
+UrImageDependenciesVisualStrategy >> colorFor: aUrNode [
 
-	^ self colorForTopParent: aHiMNode topParent object
+	^ self colorForTopParent: aUrNode topParent object
 ]
 
 { #category : #private }

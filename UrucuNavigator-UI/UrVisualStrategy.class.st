@@ -157,6 +157,6 @@ UrVisualStrategy >> setupLayout: layout [
 ]
 
 { #category : #accessing }
-UrVisualStrategy >> sizeFor: aHiMNode [
-	^ (10 * (aHiMNode children size + 1)) sqrt
+UrVisualStrategy >> sizeFor: aUrNode [
+	^ (10 * (aUrNode children size + 1)) sqrt
 ]

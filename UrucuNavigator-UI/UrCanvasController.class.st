@@ -92,11 +92,11 @@ UrCanvasController >> addNestedEdgesFor: someRSElements [
 ]
 
 { #category : #accessing }
-UrCanvasController >> addTopLevelNodes: someHiMNodes [
+UrCanvasController >> addTopLevelNodes: someUrNodes [
 
 	| newShapes |
-	topLevelNodes addAll: someHiMNodes.
-	newShapes := self shapesFor: someHiMNodes.
+	topLevelNodes addAll: someUrNodes.
+	newShapes := self shapesFor: someUrNodes.
 	canvas addAll: newShapes.
 	layout addNodes: newShapes.
 	self addEdgesFor: newShapes.

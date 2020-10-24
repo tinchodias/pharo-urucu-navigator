@@ -9,10 +9,10 @@ Class {
 }
 
 { #category : #'instance creation' }
-UrLink class >> from: aHiMNode to: anotherHiMNode [
+UrLink class >> from: aNode to: anotherNode [
 	^ self new
-		from: aHiMNode;
-		to: anotherHiMNode;
+		from: aNode;
+		to: anotherNode;
 		yourself
 ]
 

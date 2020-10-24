@@ -37,8 +37,8 @@ UrSearch >> includeBlock: aBlockClosure [
 UrSearch >> initialize [
 	super initialize.
 	
-	includeBlock := [ :aHiMNode :aString |
-		aHiMNode object includesSubstring: aString caseSensitive: true ].
+	includeBlock := [ :aUrNode :aString |
+		aUrNode object includesSubstring: aString caseSensitive: true ].
 ]
 
 { #category : #accessing }
@@ -47,8 +47,8 @@ UrSearch >> text [
 ]
 
 { #category : #accessing }
-UrSearch >> text: anObject [
-	text := anObject
+UrSearch >> text: aString [
+	text := aString
 ]
 
 { #category : #accessing }
@@ -57,6 +57,6 @@ UrSearch >> topParentNodes [
 ]
 
 { #category : #accessing }
-UrSearch >> topParentNodes: anObject [
-	topParentNodes := anObject
+UrSearch >> topParentNodes: aCollection [
+	topParentNodes := aCollection
 ]

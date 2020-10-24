@@ -13,6 +13,6 @@ UrCommand >> canvasController [
 ]
 
 { #category : #accessing }
-UrCommand >> canvasController: anObject [
-	canvasController := anObject
+UrCommand >> canvasController: aUrCanvasController [
+	canvasController := aUrCanvasController
 ]
