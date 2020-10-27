@@ -278,11 +278,6 @@ UrCanvasController >> processKeyDown: aRSKeyDownEvent [
 		ifTrue: [ self executeRedoIfPossible ]
 ]
 
-{ #category : #accessing }
-UrCanvasController >> protoNodeShape [
-	^ protoNodeShape
-]
-
 { #category : #visualization }
 UrCanvasController >> shapesFor: someUrNodes [
 	^ someUrNodes collect: [ :node |
