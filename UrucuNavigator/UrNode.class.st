@@ -81,6 +81,11 @@ UrNode >> children: anObject [
 	children := anObject
 ]
 
+{ #category : #testing }
+UrNode >> hasChildren [
+	^ children notEmpty
+]
+
 { #category : #accessing }
 UrNode >> incomingLinks [
 	^ incomingLinks

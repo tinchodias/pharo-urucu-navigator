@@ -101,6 +101,7 @@ UrCanvasController >> addTopLevelNodes: someUrNodes [
 	layout addNodes: newShapes.
 	self addEdgesFor: newShapes.
 	self startForceAnimationFinitely.
+
 ]
 
 { #category : #accessing }
@@ -114,6 +115,41 @@ UrCanvasController >> collapse: aRSShape [
 	self startForceAnimationFinitely.
 	self startCollapseAnimationOn: aRSShape.
 	self mark: aRSShape asExpanded: false.
+
+]
+
+{ #category : #private }
+UrCanvasController >> dissolve: aRSShape [ 
+
+	| oldPosition newShapes someUrNodes |
+	oldPosition := aRSShape position.
+
+	aRSShape remove.
+	(aRSShape propertyAt: #RSLabeled) remove.
+
+	someUrNodes := aRSShape model children.
+	topLevelNodes addAll: someUrNodes.
+	newShapes := (self shapesFor: someUrNodes) asGroup.
+
+	aRSShape children
+		ifEmpty: [
+			self layoutNestedShapes: newShapes.
+			oldPosition := oldPosition - (newShapes extent / 2).
+			newShapes do: [ :new |
+				new translateBy: oldPosition ] ]
+		ifNotEmpty: [ :oldChildrenShapes |
+			oldChildrenShapes with: newShapes do: [ :old :new |
+				new position: oldPosition + old position ]
+			].
+
+	canvas addAll: newShapes.
+	layout addNodes: newShapes.
+	self addEdgesFor: newShapes.
+	self startForceAnimationAfterDissolve.
+	
+	
+
+
 
 ]
 
@@ -156,10 +192,7 @@ UrCanvasController >> expand: aRSShape [
 	| nestedShapes |
 	nestedShapes := self newNestedShapesForAll: aRSShape model children.
 
-	RSRectanglePackLayout new
-		gap: 0.09;
-		preferredAngle: (25@10) angle;
-		on: nestedShapes.
+	self layoutNestedShapes: nestedShapes.
 		
 	aRSShape
 		shapes: nestedShapes;
@@ -239,6 +272,7 @@ UrCanvasController >> initializeOn: aRSCanvas visualStrategy: aUrVisualStrategy 
 		addInteraction: (RSDraggableForce new layout: layout; yourself);
 		addInteraction: visualStrategy labelInteraction;
 		addInteraction: visualStrategy hoverInteractionForShapes;
+		addInteraction: self newMenuInteraction;
 		when: RSMouseDragStart do: [:evt | evt shape pushFront. self startForceAnimationInfinitely ];
 		when: RSMouseDragEnd do: [:evt | self startForceAnimationFinitely ];
 		when: RSMouseDoubleClick do: [:evt | self toggleNode: evt shape ];
@@ -257,8 +291,31 @@ UrCanvasController >> layout [
 ]
 
 { #category : #'expanding-collapsing' }
+UrCanvasController >> layoutNestedShapes: nestedShapes [
+
+	RSRectanglePackLayout new
+		gap: 0.09;
+		preferredAngle: (25@10) angle;
+		on: nestedShapes
+
+]
+
+{ #category : #'expanding-collapsing' }
 UrCanvasController >> mark: aRSShape asExpanded: aBoolean [
 	^ aRSShape propertyAt: #expanded put: aBoolean
+]
+
+{ #category : #initialization }
+UrCanvasController >> newMenuInteraction [
+
+	^ RSMenuActivable new
+		menuDo: [ :menu :aRSShape | 
+			menu
+				add: 'Dissolve'
+				target: self
+				selector: #dissolve:
+				argument: aRSShape ];
+			yourself
 ]
 
 { #category : #visualization }
@@ -320,6 +377,19 @@ UrCanvasController >> startExpandAnimationOn: aRSShape [
 		to: 1@1;
 		onStepDo: [ :t | self expand: aRSShape step: t ].
 
+]
+
+{ #category : #animations }
+UrCanvasController >> startForceAnimationAfterDissolve [
+	
+	self stopForceAnimation.
+
+	forceAnimation := canvas newAnimation
+		easing: RSEasing cubicInOut;
+		scale: (NSLinearScale new domain: #(0 0.1 1); range: #(0 0.2 0); yourself);
+		duration: 1 seconds;
+		onStepDo: [ :t | layout alpha: t; step ];
+		yourself
 ]
 
 { #category : #animations }
