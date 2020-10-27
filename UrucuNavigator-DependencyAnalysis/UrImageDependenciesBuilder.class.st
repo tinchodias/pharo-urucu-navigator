@@ -44,9 +44,7 @@ UrImageDependenciesBuilder >> ensureAddNodeForClassNamed: aString in: aPackage [
 { #category : #private }
 UrImageDependenciesBuilder >> ensureAddNodeForMethod: aRGMethodDefinition in: aDAPackage [
 	| classNode className |
-	className := aRGMethodDefinition className.
-	aRGMethodDefinition methodClass isClassSide 
-		ifTrue: [ className := className allButLast: ' class' size ].
+	className := aRGMethodDefinition methodClass instanceSide name.
 	
 	classNode := self
 		ensureAddNodeForClassNamed: className
