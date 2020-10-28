@@ -37,6 +37,7 @@ UrCanvasController >> addEdgesFor: someRSShapes [
 	edgeBuilder shape
 		popupText: [:model | model key object asString, '->', model value object asString ];
 		addInteraction: visualStrategy hoverInteractionForEdges;
+		addInteraction: self newMenuInteractionForEdges;
 		when: RSMouseDoubleClick do: [:evt | self toggleEdge: evt shape ].
 
 	"Dependencies"
@@ -92,7 +93,7 @@ UrCanvasController >> addNestedEdgesFor: someRSElements [
 ]
 
 { #category : #accessing }
-UrCanvasController >> addTopLevelNodes: someUrNodes [
+UrCanvasController >> addTopLevelNodesWithShapes: someUrNodes [
 
 	| newShapes |
 	topLevelNodes addAll: someUrNodes.
@@ -118,20 +119,18 @@ UrCanvasController >> collapse: aRSShape [
 
 ]
 
-{ #category : #private }
+{ #category : #'dissolving-undissolving' }
 UrCanvasController >> dissolve: aRSShape [ 
 
-	| oldPosition newShapes someUrNodes |
+	| oldPosition newShapes childrenNodes |
 	oldPosition := aRSShape position.
 
-	aRSShape remove.
-	(aRSShape propertyAt: #RSLabeled) remove.
+	self removeTopLevelShape: aRSShape.
 
-	someUrNodes := aRSShape model children.
-	topLevelNodes addAll: someUrNodes.
-	newShapes := (self shapesFor: someUrNodes) asGroup.
+	childrenNodes := aRSShape model children.
+	newShapes := (self shapesFor: childrenNodes) asGroup.
 
-	aRSShape children
+	aRSShape nodes
 		ifEmpty: [
 			self layoutNestedShapes: newShapes.
 			oldPosition := oldPosition - (newShapes extent / 2).
@@ -142,14 +141,11 @@ UrCanvasController >> dissolve: aRSShape [
 				new position: oldPosition + old position ]
 			].
 
+	topLevelNodes addAll: childrenNodes.
 	canvas addAll: newShapes.
 	layout addNodes: newShapes.
 	self addEdgesFor: newShapes.
 	self startForceAnimationAfterDissolve.
-	
-	
-
-
 
 ]
 
@@ -190,7 +186,8 @@ UrCanvasController >> executeUndoIfPossible [
 { #category : #'expanding-collapsing' }
 UrCanvasController >> expand: aRSShape [
 	| nestedShapes |
-	nestedShapes := self newNestedShapesForAll: aRSShape model children.
+	nestedShapes := self shapesFor: aRSShape model children.
+"	nestedShapes := self newNestedShapesForAll: aRSShape model children."
 
 	self layoutNestedShapes: nestedShapes.
 		
@@ -272,10 +269,11 @@ UrCanvasController >> initializeOn: aRSCanvas visualStrategy: aUrVisualStrategy 
 		addInteraction: (RSDraggableForce new layout: layout; yourself);
 		addInteraction: visualStrategy labelInteraction;
 		addInteraction: visualStrategy hoverInteractionForShapes;
-		addInteraction: self newMenuInteraction;
+		addInteraction: self newMenuInteractionForNodes;
 		when: RSMouseDragStart do: [:evt | evt shape pushFront. self startForceAnimationInfinitely ];
 		when: RSMouseDragEnd do: [:evt | self startForceAnimationFinitely ];
 		when: RSMouseDoubleClick do: [:evt | self toggleNode: evt shape ];
+		border: (RSBorder new width: 0.1; yourself);
 		yourself.
 
 ]
@@ -306,15 +304,66 @@ UrCanvasController >> mark: aRSShape asExpanded: aBoolean [
 ]
 
 { #category : #initialization }
-UrCanvasController >> newMenuInteraction [
+UrCanvasController >> newMenuInteractionForEdges [
 
 	^ RSMenuActivable new
 		menuDo: [ :menu :aRSShape | 
+			
 			menu
-				add: 'Dissolve'
+				add: 'Expand/Collapse Toggle'
 				target: self
-				selector: #dissolve:
-				argument: aRSShape ];
+				selector: #toggleEdge:
+				argument: aRSShape.
+
+			menu
+				add: 'Inspect'
+				target: aRSShape
+				selector: #inspect
+				
+			];
+		yourself
+]
+
+{ #category : #initialization }
+UrCanvasController >> newMenuInteractionForNodes [
+
+	^ RSMenuActivable new
+		menuDo: [ :menu :aRSShape | 
+			
+			(self isMarkedAsExpanded: aRSShape)
+				ifTrue: [ 
+					menu
+						add: 'Collapse'
+						target: self
+						selector: #executeAndRegisterCollapseIfPossible:
+						argument: aRSShape ]
+				ifFalse: [
+					menu
+						add: 'Expand'
+						target: self
+						selector: #executeAndRegisterExpandIfPossible:
+						argument: aRSShape ].
+			
+			aRSShape model hasChildren ifTrue: [
+				menu
+					add: 'Dissolve'
+					target: self
+					selector: #dissolve:
+					argument: aRSShape ].
+
+			aRSShape model isTopParent ifFalse: [	
+				menu
+					add: 'Un-Dissolve'
+					target: self
+					selector: #undissolve:
+					argument: aRSShape ].
+
+			menu
+				add: 'Inspect'
+				target: aRSShape
+				selector: #inspect
+				
+				 ];
 			yourself
 ]
 
@@ -333,6 +382,17 @@ UrCanvasController >> processKeyDown: aRSKeyDownEvent [
 		ifTrue: [ self executeUndoIfPossible ].
 	aRSKeyDownEvent keyValue = $Z asciiValue
 		ifTrue: [ self executeRedoIfPossible ]
+]
+
+{ #category : #private }
+UrCanvasController >> removeTopLevelShape: aRSShape [ 
+
+	topLevelNodes remove: aRSShape model.
+	aRSShape remove.
+	(aRSShape propertyAt: #RSLabeled) remove.
+	aRSShape connectedEdges do: [ :each | layout removeEdge: each ].
+	layout removeNode: aRSShape
+
 ]
 
 { #category : #visualization }
@@ -459,4 +519,42 @@ UrCanvasController >> toggleNode: aRSShape [
 { #category : #accessing }
 UrCanvasController >> topLevelNodes [
 	^ topLevelNodes
+]
+
+{ #category : #'dissolving-undissolving' }
+UrCanvasController >> undissolve: aRSShape [ 
+
+	| parentNode childrenNodes collectionWithParentShape |
+	parentNode := aRSShape model parent.
+	childrenNodes := parentNode children.
+	
+	childrenNodes do: [ :each |
+		self removeTopLevelShape: (canvas shapeFromModel: each) ].
+
+	collectionWithParentShape := (self shapesFor: { parentNode }).
+
+	topLevelNodes addAll: childrenNodes.
+	canvas addAll: collectionWithParentShape.
+	layout addNodes: collectionWithParentShape.
+	self addEdgesFor: collectionWithParentShape.
+	
+	self expand: collectionWithParentShape first.
+	
+	"self startForceAnimationAfterDissolve."
+	
+"	topLevelNodes addAll: childrenNodes.
+	newShapes := (self shapesFor: childrenNodes) asGroup.
+
+	aRSShape children
+		ifEmpty: [
+			self layoutNestedShapes: newShapes.
+			oldPosition := oldPosition - (newShapes extent / 2).
+			newShapes do: [ :new |
+				new translateBy: oldPosition ] ]
+		ifNotEmpty: [ :oldChildrenShapes |
+			oldChildrenShapes with: newShapes do: [ :old :new |
+				new position: oldPosition + old position ]
+			].
+	
+	"
 ]

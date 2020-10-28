@@ -31,7 +31,7 @@ UrImageDependenciesMainModel >> setupController: aUrCanvasController [
 	dependenciesBuilder buildTopLevelNodes.
 	
 	aUrCanvasController
-		addTopLevelNodes: dependenciesBuilder topLevelNodes.
+		addTopLevelNodesWithShapes: dependenciesBuilder topLevelNodes.
 
 ]
 
