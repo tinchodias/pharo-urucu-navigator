@@ -59,6 +59,14 @@ UrNode >> allOutgoingLinks [
 ]
 
 { #category : #accessing }
+UrNode >> allOutgoingNodes [
+	^ Array streamContents: [ :stream |
+		self withAllChildrenDo: [:each | 
+			each outgoingLinks do: [ :link |
+				stream nextPut: link from ] ] ]
+]
+
+{ #category : #accessing }
 UrNode >> basicAddIncomingLink: link [
 	incomingLinks add: link
 
