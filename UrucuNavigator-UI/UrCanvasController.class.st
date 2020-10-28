@@ -29,7 +29,7 @@ UrCanvasController class >> newOn: aRSCanvas visualStrategy: aUrVisualStrategy [
 { #category : #visualization }
 UrCanvasController >> addEdgesFor: someRSShapes [
 
-	| edgeBuilder edges |
+	| edgeBuilder edges blockToEnsureEdges |
 	edgeBuilder := visualStrategy newEdgeBuilderForTopLevelElements
 		canvas: canvas;
 		yourself.
@@ -40,24 +40,35 @@ UrCanvasController >> addEdgesFor: someRSShapes [
 		addInteraction: self newMenuInteractionForEdges;
 		when: RSMouseDoubleClick do: [:evt | self toggleEdge: evt shape ].
 
-	"Dependencies"
+	"Collect all possible links"
 	edges := OrderedCollection new.
-	someRSShapes do: [ :toElement |
-		| fromModels |
-		fromModels := toElement model allIncomingNodes flatCollect: #withAllParents.
-		fromModels do: [ :fromModel |
-			"If it is present..."
-			(canvas shapeFromModel: fromModel) ifNotNil: [ :fromElement |
-				"If it is not already there..."
-				(fromElement isDirectlyConnectedTo: toElement) ifFalse: [
-					| newEdge |
-					newEdge := edgeBuilder edgeFrom: fromElement to: toElement.
-					"Explanation: The shape of the edge builder is a prototype that is copied
-					without the announcer in #edgeFrom:to:. We make it shared as an optimization."
-					newEdge announcer: edgeBuilder shape announcer.
-					"Collect it"
-					edges add: newEdge.
-		] ] ] ].
+
+	blockToEnsureEdges := [ :fromShape :toShape |
+		"If it is present in the canvas..."
+		(fromShape isNil or: [ toShape isNil ]) ifFalse: [
+			"If it is not already there..."
+			(fromShape isDirectlyConnectedTo: toShape) ifFalse: [
+				| newEdge |
+				newEdge := edgeBuilder edgeFrom: fromShape to: toShape.
+				"Explanation: The shape of the edge builder is a prototype that is copied
+				without the announcer in #edgeFrom:to:. We make it shared as an optimization."
+				newEdge announcer: edgeBuilder shape announcer.
+				"Collect it"
+				edges add: newEdge ] ] ].
+	
+	someRSShapes do: [ :aRSShape |
+		(aRSShape model allIncomingNodes flatCollect: #withAllParents)
+			do: [ :fromModel |
+				blockToEnsureEdges
+					value: (canvas shapeFromModel: fromModel)
+					value: aRSShape ].
+
+		(aRSShape model allOutgoingNodes flatCollect: #withAllParents)
+			do: [ :toModel |
+				blockToEnsureEdges
+					value: aRSShape
+					value: (canvas shapeFromModel: toModel) ].
+		].
 
 	layout addEdges: edges.
 	edges do: [ :anEdge |
