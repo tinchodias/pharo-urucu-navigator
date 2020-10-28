@@ -1,3 +1,7 @@
+"
+I'm a directed graph node that's hierarchical: can have a parent and multiple children.
+
+"
 Class {
 	#name : #UrNode,
 	#superclass : #Object,
@@ -74,11 +78,6 @@ UrNode >> basicParent: anotherNode [
 { #category : #accessing }
 UrNode >> children [
 	^ children
-]
-
-{ #category : #accessing }
-UrNode >> children: anObject [
-	children := anObject
 ]
 
 { #category : #testing }
