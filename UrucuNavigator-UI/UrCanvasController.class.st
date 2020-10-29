@@ -542,30 +542,15 @@ UrCanvasController >> undissolve: aRSShape [
 	childrenNodes do: [ :each |
 		self removeTopLevelShape: (canvas shapeFromModel: each) ].
 
-	collectionWithParentShape := (self shapesFor: { parentNode }).
+	collectionWithParentShape := self shapesFor: { parentNode }.
 
-	topLevelNodes addAll: childrenNodes.
+	collectionWithParentShape first translateBy: aRSShape position.
+
+	topLevelNodes add: parentNode.
 	canvas addAll: collectionWithParentShape.
 	layout addNodes: collectionWithParentShape.
 	self addEdgesFor: collectionWithParentShape.
 	
-	self expand: collectionWithParentShape first.
-	
-	"self startForceAnimationAfterDissolve."
-	
-"	topLevelNodes addAll: childrenNodes.
-	newShapes := (self shapesFor: childrenNodes) asGroup.
+	self startForceAnimationAfterDissolve.
 
-	aRSShape children
-		ifEmpty: [
-			self layoutNestedShapes: newShapes.
-			oldPosition := oldPosition - (newShapes extent / 2).
-			newShapes do: [ :new |
-				new translateBy: oldPosition ] ]
-		ifNotEmpty: [ :oldChildrenShapes |
-			oldChildrenShapes with: newShapes do: [ :old :new |
-				new position: oldPosition + old position ]
-			].
-	
-	"
 ]
