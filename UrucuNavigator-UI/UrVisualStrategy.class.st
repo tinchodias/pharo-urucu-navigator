@@ -126,12 +126,17 @@ UrVisualStrategy >> newLabelInteraction [
 { #category : #accessing }
 UrVisualStrategy >> newShapeForNestedNode: aUrNode [
 
-	^ RSLabel new
-		scaleBy: 0.15;
-		model: aUrNode;
-		text: aUrNode object asString;
-		yourself
-
+	^ RSComposite new
+		  model: aUrNode;
+		  addInteraction: (RSPopup new
+				   text: [ :each | each object ];
+				   yourself);
+		  border: (RSBorder new
+				   width: 0.1;
+				   yourself);
+		  color: (self colorFor: aUrNode);
+		  size: (self sizeFor: aUrNode);
+		  yourself
 ]
 
 { #category : #accessing }

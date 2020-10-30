@@ -8,7 +8,8 @@ Class {
 		'forceAnimation',
 		'canvas',
 		'protoNodeShape',
-		'visualStrategy'
+		'visualStrategy',
+		'labelStrategy'
 	],
 	#category : #'UrucuNavigator-UI-Core'
 }
@@ -114,6 +115,7 @@ UrCanvasController >> addTopLevelNodesWithShapes: someUrNodes [
 	self addEdgesFor: newShapes.
 	self startForceAnimationFinitely.
 
+	labelStrategy setupNewShapes: newShapes
 ]
 
 { #category : #accessing }
@@ -197,8 +199,7 @@ UrCanvasController >> executeUndoIfPossible [
 { #category : #'expanding-collapsing' }
 UrCanvasController >> expand: aRSShape [
 	| nestedShapes |
-	nestedShapes := self shapesFor: aRSShape model children.
-"	nestedShapes := self newNestedShapesForAll: aRSShape model children."
+	nestedShapes := self newNestedShapesForAll: aRSShape model children.
 
 	self layoutNestedShapes: nestedShapes.
 		
@@ -250,7 +251,10 @@ UrCanvasController >> initializeOn: aRSCanvas visualStrategy: aUrVisualStrategy 
 	visualStrategy := aUrVisualStrategy.
 	commandHistory := UrCommandHistory new.
 	topLevelNodes := OrderedCollection new.
-
+	
+	labelStrategy := UrSidesStrategy new.
+"	labelStrategy := UrOnTopStrategy new."
+	
 	canvas := aRSCanvas.
 	visualStrategy setupCanvas: aRSCanvas.
 
@@ -278,7 +282,6 @@ UrCanvasController >> initializeOn: aRSCanvas visualStrategy: aUrVisualStrategy 
 	protoNodeShape := RSComposite new
 		addInteraction: (RSPopup new text: [ :each | each object ]; yourself);
 		addInteraction: (RSDraggableForce new layout: layout; yourself);
-		addInteraction: visualStrategy labelInteraction;
 		addInteraction: visualStrategy hoverInteractionForShapes;
 		addInteraction: self newMenuInteractionForNodes;
 		when: RSMouseDragStart do: [:evt | evt shape pushFront. self startForceAnimationInfinitely ];
@@ -287,6 +290,7 @@ UrCanvasController >> initializeOn: aRSCanvas visualStrategy: aUrVisualStrategy 
 		border: (RSBorder new width: 0.1; yourself);
 		yourself.
 
+	labelStrategy setupCanvasController: self.
 ]
 
 { #category : #'expanding-collapsing' }
@@ -395,15 +399,20 @@ UrCanvasController >> processKeyDown: aRSKeyDownEvent [
 		ifTrue: [ self executeRedoIfPossible ]
 ]
 
+{ #category : #accessing }
+UrCanvasController >> protoNodeShape [
+	^ protoNodeShape
+]
+
 { #category : #private }
 UrCanvasController >> removeTopLevelShape: aRSShape [ 
 
 	topLevelNodes remove: aRSShape model.
 	aRSShape remove.
-	(aRSShape propertyAt: #RSLabeled) remove.
 	aRSShape connectedEdges do: [ :each | layout removeEdge: each ].
-	layout removeNode: aRSShape
+	layout removeNode: aRSShape.
 
+	labelStrategy removedTopLabelShape: aRSShape.
 ]
 
 { #category : #visualization }
@@ -553,4 +562,9 @@ UrCanvasController >> undissolve: aRSShape [
 	
 	self startForceAnimationAfterDissolve.
 
+]
+
+{ #category : #accessing }
+UrCanvasController >> visualStrategy [
+	^ visualStrategy
 ]
