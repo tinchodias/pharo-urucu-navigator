@@ -39,7 +39,7 @@ UrSidesStrategy >> initialize [
 		yourself.
 
 	labelPrototype := RSLabel new
-		scaleBy: 0.2;
+		scaleBy: 0.17;
 		yourself.
 
 	outerMargin := 2.
@@ -56,6 +56,7 @@ UrSidesStrategy >> labelFor: aRSShape [
 
 	^ { label } asGroup asShape
 		color: canvasController canvas color;
+		propertyAt: self className put: aRSShape;
 		padding: 1;
 		yourself
 
@@ -134,9 +135,15 @@ UrSidesStrategy >> updatedPosition: evt [
 		ifTrue: [ self ensureLabelOf: evt shape isIn: leftLabels andIsNotIn: rightLabels ]
 		ifFalse: [ self ensureLabelOf: evt shape isIn: rightLabels andIsNotIn: leftLabels ].
 	
+	leftLabels sort: [ :a :b |
+		(a propertyAt: self className) position y <
+		(b propertyAt: self className) position y ].
 	leftLayout on: leftLabels.
 	leftLabels translateBy: (outerRectangle left + outerMargin) @ 0.
 
+	rightLabels sort: [ :a :b |
+		(a propertyAt: self className) position y <
+		(b propertyAt: self className) position y ].
 	rightLayout on: rightLabels.
 	rightLabels translateBy: (outerRectangle right - outerMargin - rightLabels width) @ 0.
 
