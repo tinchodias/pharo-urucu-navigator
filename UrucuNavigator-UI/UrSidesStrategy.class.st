@@ -4,12 +4,16 @@ Class {
 	#instVars : [
 		'leftLabels',
 		'rightLabels',
-		'canvasController'
+		'canvasController',
+		'leftLayout',
+		'rightLayout',
+		'outerMargin',
+		'labelPrototype'
 	],
 	#category : #'UrucuNavigator-UI-Core'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #private }
 UrSidesStrategy >> ensureLabelOf: aRSShape isIn: aGroup andIsNotIn: anotherGroup [
 
 	| label |
@@ -20,7 +24,59 @@ UrSidesStrategy >> ensureLabelOf: aRSShape isIn: aGroup andIsNotIn: anotherGroup
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #initialization }
+UrSidesStrategy >> initialize [
+	super initialize.
+
+	leftLayout := RSVerticalLineLayout new
+		gapSize: 0;
+		alignRight;
+		yourself.
+
+	rightLayout := RSVerticalLineLayout new
+		gapSize: 0;
+		alignLeft;
+		yourself.
+
+	labelPrototype := RSLabel new
+		scaleBy: 0.2;
+		yourself.
+
+	outerMargin := 2.
+
+]
+
+{ #category : #private }
+UrSidesStrategy >> labelFor: aRSShape [
+
+	| label |
+	label := labelPrototype copyWithAnnouncer
+		text: aRSShape model object asString;
+		yourself.
+
+	^ { label } asGroup asShape
+		color: canvasController canvas color;
+		padding: 1;
+		yourself
+
+]
+
+{ #category : #private }
+UrSidesStrategy >> lineFrom: aRSShape to: itsLabel [
+
+	^ RSBezier new
+		controlPointsController: RSHorizontalCPAPController new;
+		from: aRSShape;
+		to: itsLabel;
+		color: Color lightGray;
+		withCenteredAttachPoint;
+		dashArray: #(0.5);
+		width: 0.25;
+		yourself
+
+]
+
+{ #category : #public }
 UrSidesStrategy >> removedTopLabelShape: aRSShape [
 
 	| label |
@@ -30,7 +86,7 @@ UrSidesStrategy >> removedTopLabelShape: aRSShape [
 	label remove.
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #public }
 UrSidesStrategy >> setupCanvasController: anUrCanvasController [ 
 	
 	leftLabels := RSGroup new.
@@ -40,7 +96,7 @@ UrSidesStrategy >> setupCanvasController: anUrCanvasController [
 
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #public }
 UrSidesStrategy >> setupNewShapes: aCollection [
 
 	| labels lines |
@@ -49,37 +105,10 @@ UrSidesStrategy >> setupNewShapes: aCollection [
 	
 	aCollection do: [ :each |
 		| label line |
-		label := RSLabel new
-			scaleBy: 0.2;
-			text: each model object asString;
-			yourself.
+		label := self labelFor: each.
+		line := self lineFrom: each to: label.
 
-		label := { label } asGroup asShape
-			color: canvasController canvas color;
-			padding: 1;
-			yourself.
-
-		line := RSBezier new
-			controlPointsController: RSHorizontalCPAPController new;
-			from: each;
-			to: label;
-			color: Color lightGray;
-			withCenteredAttachPoint;
-			dashArray: #(0.5);
-			width: 0.25;
-			yourself.
-
-"		line := RSPolyline new
-			controlPointsController: RSHorizontalCPAPController new;
-			from: each;
-			to: label; 
-			withHorizontalAttachPoint;
-			dashArray: #(0.25);
-			width: 0.25;
-			yourself.
-"
 		each propertyAt: self className put: label.
-
 		each when: RSPositionChangedEvent send: #updatedPosition: to: self.
 			
 		labels add: label.
@@ -89,31 +118,26 @@ UrSidesStrategy >> setupNewShapes: aCollection [
 		addAllShapes: labels;
 		addAllShapes: lines.
 
-	lines pushBack
+	labels pushBack.
+	lines pushBack.
+
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #private }
 UrSidesStrategy >> updatedPosition: evt [
 
-	| splitterX outerRectangle margin layout |
+	| splitterX outerRectangle |
 	splitterX := canvasController canvas nodes encompassingRectangle floatCenter x.
 	outerRectangle := canvasController layout enclosingRectangle.
-	margin := 2.
 	
 	evt shape position x < splitterX
 		ifTrue: [ self ensureLabelOf: evt shape isIn: leftLabels andIsNotIn: rightLabels ]
 		ifFalse: [ self ensureLabelOf: evt shape isIn: rightLabels andIsNotIn: leftLabels ].
 	
-	layout := RSVerticalLineLayout new
-		gapSize: 0;
-		yourself.
-	
-	layout alignRight.	
-	layout on: leftLabels.
-	leftLabels translateBy: (outerRectangle left + margin) @ 0.
+	leftLayout on: leftLabels.
+	leftLabels translateBy: (outerRectangle left + outerMargin) @ 0.
 
-	layout alignLeft.	
-	layout on: rightLabels.
-	rightLabels translateBy: (outerRectangle right - margin - rightLabels width) @ 0.
+	rightLayout on: rightLabels.
+	rightLabels translateBy: (outerRectangle right - outerMargin - rightLabels width) @ 0.
 
 ]

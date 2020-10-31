@@ -4,17 +4,18 @@ Class {
 	#category : #'UrucuNavigator-UI-Core'
 }
 
-{ #category : #accessing }
+{ #category : #public }
 UrLabelStrategy >> removedTopLabelShape: arg1 [ 
 	^ self subclassResponsibility
 ]
 
-{ #category : #accessing }
-UrLabelStrategy >> setupCanvasController: arg1 [ 
+{ #category : #public }
+UrLabelStrategy >> setupCanvasController: anUrCanvasController [
+
 	^ self subclassResponsibility
 ]
 
-{ #category : #accessing }
+{ #category : #public }
 UrLabelStrategy >> setupNewShapes: arg1 [ 
 	^ self subclassResponsibility
 ]

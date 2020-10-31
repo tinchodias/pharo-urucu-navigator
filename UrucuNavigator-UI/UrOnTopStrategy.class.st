@@ -4,18 +4,19 @@ Class {
 	#category : #'UrucuNavigator-UI-Core'
 }
 
-{ #category : #'as yet unclassified' }
+{ #category : #public }
 UrOnTopStrategy >> removedTopLabelShape: aRSShape [
 
 	(aRSShape propertyAt: #RSLabeled) remove
 ]
 
-{ #category : #'as yet unclassified' }
-UrOnTopStrategy >> setupCanvasController: x [
+{ #category : #public }
+UrOnTopStrategy >> setupCanvasController: anUrCanvasController [
 
-	x protoNodeShape addInteraction: x visualStrategy labelInteraction
+	anUrCanvasController protoNodeShape addInteraction:
+		anUrCanvasController visualStrategy labelInteraction
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #public }
 UrOnTopStrategy >> setupNewShapes: aCollection [
 ]
