@@ -8,7 +8,8 @@ Class {
 		'leftLayout',
 		'rightLayout',
 		'outerMargin',
-		'labelPrototype'
+		'labelPrototype',
+		'refreshDeferrer'
 	],
 	#category : #'UrucuNavigator-UI-Core'
 }
@@ -18,10 +19,13 @@ UrSidesStrategy >> ensureLabelOf: aRSShape isIn: aGroup andIsNotIn: anotherGroup
 
 	| label |
 	label := aRSShape propertyAt: self className.
-	
-	anotherGroup remove: label ifAbsent: [].
-	aGroup addIfNotPresent: label.
 
+	(aGroup includes: label) ifTrue: [ ^ self ].
+
+	anotherGroup remove: label ifAbsent: [].
+	aGroup add: label.
+
+	refreshDeferrer schedule
 ]
 
 { #category : #initialization }
@@ -43,6 +47,12 @@ UrSidesStrategy >> initialize [
 		yourself.
 
 	outerMargin := 2.
+
+	refreshDeferrer := UrDeferrer
+		send: #refreshLeftAndRightGroups
+		to: self
+		after: 50 milliSeconds
+		maxDefer: 200 milliSeconds
 
 ]
 
@@ -77,6 +87,28 @@ UrSidesStrategy >> lineFrom: aRSShape to: itsLabel [
 
 ]
 
+{ #category : #private }
+UrSidesStrategy >> refreshLeftAndRightGroups [
+
+	| outerRectangle |
+	outerRectangle := canvasController layout enclosingRectangle.
+	outerRectangle ifNil: [ ^self "FIX" ].
+
+	leftLabels remove: nil ifAbsent: [  ]. "WHY??????"
+	leftLabels sort: [ :a :b |
+		(a propertyAt: self className) position y <
+		(b propertyAt: self className) position y ].
+	leftLayout on: leftLabels.
+	leftLabels translateBy: (outerRectangle left + outerMargin) @ leftLabels encompassingRectangle floatCenter y negated.
+
+	rightLabels sort: [ :a :b |
+		(a propertyAt: self className) position y <
+		(b propertyAt: self className) position y ].
+	rightLayout on: rightLabels.
+	rightLabels translateBy: (outerRectangle right - outerMargin - rightLabels width) @ rightLabels encompassingRectangle floatCenter y negated.
+
+]
+
 { #category : #public }
 UrSidesStrategy >> removedTopLabelShape: aRSShape [
 
@@ -84,16 +116,23 @@ UrSidesStrategy >> removedTopLabelShape: aRSShape [
 	label := aRSShape propertyAt: self className.
 	leftLabels remove: label ifAbsent: [].
 	rightLabels remove: label ifAbsent: [].
-	label remove.
+
+	label ifNotNil: [ "WHY???"
+		label remove ].
 ]
 
 { #category : #public }
 UrSidesStrategy >> setupCanvasController: anUrCanvasController [ 
 	
+	canvasController := anUrCanvasController.
+
 	leftLabels := RSGroup new.
 	rightLabels := RSGroup new.
-	
-	canvasController := anUrCanvasController.
+
+	canvasController canvas
+		when: RSExtentChangedEvent
+		send: #schedule
+		to: refreshDeferrer
 
 ]
 
@@ -127,24 +166,11 @@ UrSidesStrategy >> setupNewShapes: aCollection [
 { #category : #private }
 UrSidesStrategy >> updatedPosition: evt [
 
-	| splitterX outerRectangle |
+	| splitterX |
 	splitterX := canvasController canvas nodes encompassingRectangle floatCenter x.
-	outerRectangle := canvasController layout enclosingRectangle.
 	
 	evt shape position x < splitterX
 		ifTrue: [ self ensureLabelOf: evt shape isIn: leftLabels andIsNotIn: rightLabels ]
 		ifFalse: [ self ensureLabelOf: evt shape isIn: rightLabels andIsNotIn: leftLabels ].
-	
-	leftLabels sort: [ :a :b |
-		(a propertyAt: self className) position y <
-		(b propertyAt: self className) position y ].
-	leftLayout on: leftLabels.
-	leftLabels translateBy: (outerRectangle left + outerMargin) @ 0.
-
-	rightLabels sort: [ :a :b |
-		(a propertyAt: self className) position y <
-		(b propertyAt: self className) position y ].
-	rightLayout on: rightLabels.
-	rightLabels translateBy: (outerRectangle right - outerMargin - rightLabels width) @ 0.
 
 ]

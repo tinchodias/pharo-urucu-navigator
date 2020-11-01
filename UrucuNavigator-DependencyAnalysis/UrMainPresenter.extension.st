@@ -1,11 +1,34 @@
 Extension { #name : #UrMainPresenter }
 
 { #category : #'*UrucuNavigator-DependencyAnalysis' }
-UrMainPresenter class >> example1 [
+UrMainPresenter class >> example1small [
+
+	^ self exampleImageDependencies: { 'Hiedra' }
+
+]
+
+{ #category : #'*UrucuNavigator-DependencyAnalysis' }
+UrMainPresenter class >> example2medium [
+
+	^ self exampleImageDependencies: {
+		'Hiedra'. 'Hiedra-Tests'. 'Athens-Cairo' }
+
+]
+
+{ #category : #'*UrucuNavigator-DependencyAnalysis' }
+UrMainPresenter class >> example3large [
+
+	^ self exampleImageDependencies: {
+		'Hiedra'. 'Hiedra-Tests'. 'Athens-Cairo'. 'Growl'. 'Iceberg' }
+
+]
+
+{ #category : #'*UrucuNavigator-DependencyAnalysis' }
+UrMainPresenter class >> exampleImageDependencies: packageNames [
 
 	| model |
 	model := UrImageDependenciesMainModel new
-		internalPackageNames: {'Hiedra'. "'Hiedra-Tests'. 'Athens-Cairo'. 'Growl'. 'Iceberg'"};
+		internalPackageNames: packageNames;
 		yourself.
 
 	^ (self new

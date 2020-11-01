@@ -112,10 +112,11 @@ UrCanvasController >> addTopLevelNodesWithShapes: someUrNodes [
 	newShapes := self shapesFor: someUrNodes.
 	canvas addAll: newShapes.
 	layout addNodes: newShapes.
+	labelStrategy setupNewShapes: newShapes.
+	
 	self addEdgesFor: newShapes.
 	self startForceAnimationFinitely.
 
-	labelStrategy setupNewShapes: newShapes
 ]
 
 { #category : #accessing }
@@ -157,6 +158,7 @@ UrCanvasController >> dissolve: aRSShape [
 	topLevelNodes addAll: childrenNodes.
 	canvas addAll: newShapes.
 	layout addNodes: newShapes.
+	labelStrategy setupNewShapes: newShapes.
 	self addEdgesFor: newShapes.
 	self startForceAnimationAfterDissolve.
 
@@ -558,6 +560,7 @@ UrCanvasController >> undissolve: aRSShape [
 	topLevelNodes add: parentNode.
 	canvas addAll: collectionWithParentShape.
 	layout addNodes: collectionWithParentShape.
+	labelStrategy setupNewShapes: collectionWithParentShape.
 	self addEdgesFor: collectionWithParentShape.
 	
 	self startForceAnimationAfterDissolve.
