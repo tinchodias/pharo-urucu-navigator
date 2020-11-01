@@ -2,14 +2,13 @@ Class {
 	#name : #UrSidesStrategy,
 	#superclass : #UrLabelStrategy,
 	#instVars : [
-		'leftLabels',
-		'rightLabels',
 		'canvasController',
 		'leftLayout',
 		'rightLayout',
 		'outerMargin',
 		'labelPrototype',
-		'refreshDeferrer'
+		'refreshDeferrer',
+		'lastLeftShapes'
 	],
 	#category : #'UrucuNavigator-UI-Core'
 }
@@ -52,7 +51,7 @@ UrSidesStrategy >> initialize [
 		send: #refreshLeftAndRightGroups
 		to: self
 		after: 50 milliSeconds
-		maxDefer: 200 milliSeconds
+		maxDefer: 250 milliSeconds
 
 ]
 
@@ -90,20 +89,22 @@ UrSidesStrategy >> lineFrom: aRSShape to: itsLabel [
 { #category : #private }
 UrSidesStrategy >> refreshLeftAndRightGroups [
 
-	| outerRectangle |
+	| outerRectangle shapesToLabel stream leftLabels rightLabels leftShapes rightShapes |
 	outerRectangle := canvasController layout enclosingRectangle.
 	outerRectangle ifNil: [ ^self "FIX" ].
 
-	leftLabels remove: nil ifAbsent: [  ]. "WHY??????"
-	leftLabels sort: [ :a :b |
-		(a propertyAt: self className) position y <
-		(b propertyAt: self className) position y ].
+	shapesToLabel := canvasController canvas nodes.
+	stream := (shapesToLabel sorted: [ :a :b | a position x < b position x ]) readStream.
+	leftShapes := stream next: shapesToLabel size // 2.
+	rightShapes := stream upToEnd.
+	
+	leftShapes := leftShapes sort: [ :a :b | a position y < b position y ].
+	leftLabels := leftShapes collect: [ :each | each propertyAt: self className ] as: RSGroup.
 	leftLayout on: leftLabels.
 	leftLabels translateBy: (outerRectangle left + outerMargin) @ leftLabels encompassingRectangle floatCenter y negated.
 
-	rightLabels sort: [ :a :b |
-		(a propertyAt: self className) position y <
-		(b propertyAt: self className) position y ].
+	rightShapes := rightShapes sort: [ :a :b | a position y < b position y ].
+	rightLabels := rightShapes collect: [ :each | each propertyAt: self className ] as: RSGroup.
 	rightLayout on: rightLabels.
 	rightLabels translateBy: (outerRectangle right - outerMargin - rightLabels width) @ rightLabels encompassingRectangle floatCenter y negated.
 
@@ -114,20 +115,13 @@ UrSidesStrategy >> removedTopLabelShape: aRSShape [
 
 	| label |
 	label := aRSShape propertyAt: self className.
-	leftLabels remove: label ifAbsent: [].
-	rightLabels remove: label ifAbsent: [].
-
-	label ifNotNil: [ "WHY???"
-		label remove ].
+	label remove.
 ]
 
 { #category : #public }
 UrSidesStrategy >> setupCanvasController: anUrCanvasController [ 
 	
 	canvasController := anUrCanvasController.
-
-	leftLabels := RSGroup new.
-	rightLabels := RSGroup new.
 
 	canvasController canvas
 		when: RSExtentChangedEvent
@@ -149,7 +143,7 @@ UrSidesStrategy >> setupNewShapes: aCollection [
 		line := self lineFrom: each to: label.
 
 		each propertyAt: self className put: label.
-		each when: RSPositionChangedEvent send: #updatedPosition: to: self.
+		each when: RSPositionChangedEvent send: #schedule to: refreshDeferrer.
 			
 		labels add: label.
 		lines add: line ].
@@ -160,17 +154,5 @@ UrSidesStrategy >> setupNewShapes: aCollection [
 
 	labels pushBack.
 	lines pushBack.
-
-]
-
-{ #category : #private }
-UrSidesStrategy >> updatedPosition: evt [
-
-	| splitterX |
-	splitterX := canvasController canvas nodes encompassingRectangle floatCenter x.
-	
-	evt shape position x < splitterX
-		ifTrue: [ self ensureLabelOf: evt shape isIn: leftLabels andIsNotIn: rightLabels ]
-		ifFalse: [ self ensureLabelOf: evt shape isIn: rightLabels andIsNotIn: leftLabels ].
 
 ]
