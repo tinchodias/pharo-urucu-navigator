@@ -546,24 +546,46 @@ UrCanvasController >> topLevelNodes [
 { #category : #'dissolving-undissolving' }
 UrCanvasController >> undissolve: aRSShape [ 
 
-	| parentNode childrenNodes collectionWithParentShape |
+	| parentNode childrenNodes childrenShapes originalPositions targetPosition |
 	parentNode := aRSShape model parent.
 	childrenNodes := parentNode children.
-	
-	childrenNodes do: [ :each |
-		self removeTopLevelShape: (canvas shapeFromModel: each) ].
+	childrenShapes := childrenNodes collect: [ :each |
+		canvas shapeFromModel: each ].
 
-	collectionWithParentShape := self shapesFor: { parentNode }.
+	originalPositions := childrenShapes collect: #position.
+	targetPosition := aRSShape position.
+	canvas newAnimation 
+		easing: RSEasing cubicInOut;
+		duration: 0.5 seconds;
 
-	collectionWithParentShape first translateBy: aRSShape position.
+		onStepDo: [ :t |
+			childrenShapes doWithIndex: [ :e :i |
+				e translateTo:
+					((originalPositions at: i) 
+						interpolateTo: targetPosition at: t) ].
+			 ];
 
-	topLevelNodes add: parentNode.
-	canvas addAll: collectionWithParentShape.
-	layout addNodes: collectionWithParentShape.
-	labelStrategy setupNewShapes: collectionWithParentShape.
-	self addEdgesFor: collectionWithParentShape.
-	
-	self startForceAnimationAfterDissolve.
+		when: RSAnimationEndEvent
+		do: [ :evt |
+			| collectionWithParentShape |
+
+			childrenShapes do: [ :each |
+				self removeTopLevelShape: each ].
+
+			collectionWithParentShape := self shapesFor: { parentNode }.
+			collectionWithParentShape first translateBy: aRSShape position.
+
+			topLevelNodes add: parentNode.
+			canvas addAll: collectionWithParentShape.
+			layout addNodes: collectionWithParentShape.
+			labelStrategy setupNewShapes: collectionWithParentShape.
+			self addEdgesFor: collectionWithParentShape.
+			
+			self startForceAnimationFinitely ].
+
+			
+				
+			
 
 ]
 
