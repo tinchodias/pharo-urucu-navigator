@@ -13,20 +13,6 @@ Class {
 	#category : #'UrucuNavigator-UI-Core'
 }
 
-{ #category : #private }
-UrSidesStrategy >> ensureLabelOf: aRSShape isIn: aGroup andIsNotIn: anotherGroup [
-
-	| label |
-	label := aRSShape propertyAt: self className.
-
-	(aGroup includes: label) ifTrue: [ ^ self ].
-
-	anotherGroup remove: label ifAbsent: [].
-	aGroup add: label.
-
-	refreshDeferrer schedule
-]
-
 { #category : #initialization }
 UrSidesStrategy >> initialize [
 	super initialize.
