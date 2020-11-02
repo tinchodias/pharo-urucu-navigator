@@ -42,6 +42,6 @@ UrImageDependenciesVisualStrategy >> internalPackageNames [
 ]
 
 { #category : #accessing }
-UrImageDependenciesVisualStrategy >> internalPackageNames: anObject [
-	internalPackageNames := anObject
+UrImageDependenciesVisualStrategy >> internalPackageNames: aCollection [
+	internalPackageNames := aCollection
 ]

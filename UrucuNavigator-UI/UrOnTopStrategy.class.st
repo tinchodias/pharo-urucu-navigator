@@ -5,6 +5,21 @@ Class {
 }
 
 { #category : #public }
+UrOnTopStrategy >> newLabelInteraction [ 
+
+	^ RSLabeled new
+		model: #yourself;
+		shapeBuilder: [ :aShape |
+			RSComposite new
+				shapes: {
+					RSLabel new
+						text: aShape model object asString;
+						yourself };
+				yourself ];
+		yourself
+]
+
+{ #category : #public }
 UrOnTopStrategy >> removedTopLabelShape: aRSShape [
 
 	(aRSShape propertyAt: #RSLabeled) remove
@@ -14,7 +29,7 @@ UrOnTopStrategy >> removedTopLabelShape: aRSShape [
 UrOnTopStrategy >> setupCanvasController: anUrCanvasController [
 
 	anUrCanvasController protoNodeShape addInteraction:
-		anUrCanvasController visualStrategy labelInteraction
+		self newLabelInteraction
 ]
 
 { #category : #public }

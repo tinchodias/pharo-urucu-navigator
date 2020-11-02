@@ -3,11 +3,15 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'hoverInteractionForEdges',
-		'hoverInteractionForShapes',
-		'labelInteraction'
+		'hoverInteractionForShapes'
 	],
 	#category : #'UrucuNavigator-UI-Core'
 }
+
+{ #category : #accessing }
+UrVisualStrategy >> colorFor: aUrNode [
+	^ self subclassResponsibility
+]
 
 { #category : #accessing }
 UrVisualStrategy >> currentTheme [
@@ -18,6 +22,17 @@ UrVisualStrategy >> currentTheme [
 UrVisualStrategy >> edgeLengthFor: anEdge [
 	^ (anEdge from encompassingRectangle halfPerimeter
 		+ anEdge to encompassingRectangle halfPerimeter) / 2
+]
+
+{ #category : #'expanding-collapsing' }
+UrVisualStrategy >> expand: aRSComposite nesting: nestedShapes [
+
+	self layoutNestedShapes: nestedShapes.
+	
+	aRSComposite
+		shapes: nestedShapes;
+		padding: 5.
+
 ]
 
 { #category : #accessing }
@@ -36,7 +51,6 @@ UrVisualStrategy >> initialize [
 	
 	hoverInteractionForEdges := self newHoverInteractionForEdges.
 	hoverInteractionForShapes := self newHoverInteractionForShapes.
-	labelInteraction := self newLabelInteraction.
 	
 "	highlightInteractionForCurrentSearchResult := RSHighlightable new
 		propertyKey: #searchResult;
@@ -58,9 +72,14 @@ UrVisualStrategy >> initialize [
 "
 ]
 
-{ #category : #accessing }
-UrVisualStrategy >> labelInteraction [
-	^ labelInteraction
+{ #category : #'expanding-collapsing' }
+UrVisualStrategy >> layoutNestedShapes: nestedShapes [
+
+	RSRectanglePackLayout new
+		gap: 0.5;
+		preferredAngle: (25@10) angle;
+		on: nestedShapes
+
 ]
 
 { #category : #accessing }
@@ -68,7 +87,7 @@ UrVisualStrategy >> newEdgeBuilderForNestedElements [
 
 	^ RSEdgeBuilder line
 		color: (self currentTheme caretColor alpha: 0.15);
-		width: 0.5;
+		width: 1.5;
 "		interactionDo: [ :interactionBuilder |
 			interactionBuilder
 				popupText: [:model | model key model object asString, '->', model value model object asString ] ];
@@ -79,6 +98,7 @@ UrVisualStrategy >> newEdgeBuilderForNestedElements [
 UrVisualStrategy >> newEdgeBuilderForTopLevelElements [
 
 	^ RSEdgeBuilder line
+		width: 4;
 		color: (self currentTheme caretColor alpha: 0.25);
 		yourself
 ]
@@ -101,26 +121,10 @@ UrVisualStrategy >> newHoverInteractionForShapes [
 		highlightBorder: [ :shape | 
 			RSBorder new
 				color: self currentTheme textColor;
-				width: 0.3;
+				width: 2;
 				yourself ];
 		yourself
 
-]
-
-{ #category : #accessing }
-UrVisualStrategy >> newLabelInteraction [ 
-
-	^ RSLabeled new
-		model: #yourself;
-		shapeBuilder: [ :aShape |
-			RSComposite new
-				shapes: {
-					RSLabel new
-						text: aShape model object asString;
-						scaleBy: 0.15;
-						yourself };
-				yourself ];
-		yourself
 ]
 
 { #category : #accessing }
@@ -132,7 +136,7 @@ UrVisualStrategy >> newShapeForNestedNode: aUrNode [
 				   text: [ :each | each object ];
 				   yourself);
 		  border: (RSBorder new
-				   width: 0.1;
+				   width: 1;
 				   yourself);
 		  color: (self colorFor: aUrNode);
 		  size: (self sizeFor: aUrNode);
@@ -143,7 +147,6 @@ UrVisualStrategy >> newShapeForNestedNode: aUrNode [
 UrVisualStrategy >> setupCanvas: aRSCanvas [
 
 	aRSCanvas color: self currentTheme backgroundColor.
-	aRSCanvas camera scale: 6.
 	"aRSCanvas addInteraction: RSGraphCanvasMonitor."
 	
 
@@ -154,14 +157,15 @@ UrVisualStrategy >> setupLayout: layout [
 
 	layout
 		charge: -60;
-		friction: 0.25;
+		friction: 0.75;
+"		strength: 1;"
 		gravity: 0.1;
 		enclosingForce: 1;
-		enclosingThreshold: 20
+		enclosingThreshold: 25
 
 ]
 
 { #category : #accessing }
 UrVisualStrategy >> sizeFor: aUrNode [
-	^ (10 * (aUrNode children size + 1)) sqrt
+	^ (100 * (aUrNode children size + 1)) sqrt
 ]

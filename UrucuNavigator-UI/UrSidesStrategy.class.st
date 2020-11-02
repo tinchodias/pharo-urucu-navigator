@@ -28,10 +28,10 @@ UrSidesStrategy >> initialize [
 		yourself.
 
 	labelPrototype := RSLabel new
-		scaleBy: 0.17;
+"		scaleBy: 0.9;"
 		yourself.
 
-	outerMargin := 2.
+	outerMargin := 10.
 
 	refreshDeferrer := UrDeferrer
 		send: #refreshLeftAndRightGroups
@@ -66,8 +66,8 @@ UrSidesStrategy >> lineFrom: aRSShape to: itsLabel [
 		to: itsLabel;
 		color: Color lightGray;
 		withCenteredAttachPoint;
-		dashArray: #(0.5);
-		width: 0.25;
+		dashArray: #(2);
+		width: 0.75;
 		yourself
 
 ]

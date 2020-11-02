@@ -146,7 +146,7 @@ UrCanvasController >> dissolve: aRSShape [
 
 	aRSShape nodes
 		ifEmpty: [
-			self layoutNestedShapes: newShapes.
+			visualStrategy layoutNestedShapes: newShapes.
 			oldPosition := oldPosition - (newShapes extent / 2).
 			newShapes do: [ :new |
 				new translateBy: oldPosition ] ]
@@ -200,15 +200,12 @@ UrCanvasController >> executeUndoIfPossible [
 
 { #category : #'expanding-collapsing' }
 UrCanvasController >> expand: aRSShape [
+
 	| nestedShapes |
 	nestedShapes := self newNestedShapesForAll: aRSShape model children.
-
-	self layoutNestedShapes: nestedShapes.
-		
-	aRSShape
-		shapes: nestedShapes;
-		padding: 1;
-		pushFront.
+	visualStrategy expand: aRSShape nesting: nestedShapes.
+	
+	aRSShape pushFront.
 	
 	self addNestedEdgesFor: nestedShapes.
 
@@ -289,7 +286,7 @@ UrCanvasController >> initializeOn: aRSCanvas visualStrategy: aUrVisualStrategy 
 		when: RSMouseDragStart do: [:evt | evt shape pushFront. self startForceAnimationInfinitely ];
 		when: RSMouseDragEnd do: [:evt | self startForceAnimationFinitely ];
 		when: RSMouseDoubleClick do: [:evt | self toggleNode: evt shape ];
-		border: (RSBorder new width: 0.1; yourself);
+		border: (RSBorder new width: 1; yourself);
 		yourself.
 
 	labelStrategy setupCanvasController: self.
@@ -303,16 +300,6 @@ UrCanvasController >> isMarkedAsExpanded: aRSShape [
 { #category : #accessing }
 UrCanvasController >> layout [
 	^ layout
-]
-
-{ #category : #'expanding-collapsing' }
-UrCanvasController >> layoutNestedShapes: nestedShapes [
-
-	RSRectanglePackLayout new
-		gap: 0.09;
-		preferredAngle: (25@10) angle;
-		on: nestedShapes
-
 ]
 
 { #category : #'expanding-collapsing' }
