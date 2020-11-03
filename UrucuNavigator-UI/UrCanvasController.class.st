@@ -251,8 +251,7 @@ UrCanvasController >> initializeOn: aRSCanvas visualStrategy: aUrVisualStrategy 
 	commandHistory := UrCommandHistory new.
 	topLevelNodes := OrderedCollection new.
 	
-	labelStrategy := UrSidesStrategy new.
-"	labelStrategy := UrOnTopStrategy new."
+	labelStrategy := UrSidesStrategy newWith: self.
 	
 	canvas := aRSCanvas.
 	visualStrategy setupCanvas: aRSCanvas.
@@ -281,7 +280,6 @@ UrCanvasController >> initializeOn: aRSCanvas visualStrategy: aUrVisualStrategy 
 	protoNodeShape := RSComposite new
 		addInteraction: (RSPopup new text: [ :each | each object ]; yourself);
 		addInteraction: (RSDraggableForce new layout: layout; yourself);
-		addInteraction: visualStrategy hoverInteractionForShapes;
 		addInteraction: self newMenuInteractionForNodes;
 		when: RSMouseDragStart do: [:evt | evt shape pushFront. self startForceAnimationInfinitely ];
 		when: RSMouseDragEnd do: [:evt | self startForceAnimationFinitely ];
@@ -289,7 +287,7 @@ UrCanvasController >> initializeOn: aRSCanvas visualStrategy: aUrVisualStrategy 
 		border: (RSBorder new width: 1; yourself);
 		yourself.
 
-	labelStrategy setupCanvasController: self.
+	labelStrategy setupCanvasController.
 ]
 
 { #category : #'expanding-collapsing' }

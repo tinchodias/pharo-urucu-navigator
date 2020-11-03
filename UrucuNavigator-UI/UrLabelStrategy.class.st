@@ -1,8 +1,29 @@
 Class {
 	#name : #UrLabelStrategy,
 	#superclass : #Object,
+	#instVars : [
+		'canvasController'
+	],
 	#category : #'UrucuNavigator-UI-Core'
 }
+
+{ #category : #'instance creation' }
+UrLabelStrategy class >> newWith: anUrCanvasController [
+
+	^ self basicNew
+		initializeWith: anUrCanvasController;
+		yourself
+
+]
+
+{ #category : #initialization }
+UrLabelStrategy >> initializeWith: anUrCanvasController [
+
+	canvasController := anUrCanvasController.
+	
+	self initialize.
+
+]
 
 { #category : #public }
 UrLabelStrategy >> removedTopLabelShape: arg1 [ 
@@ -10,9 +31,9 @@ UrLabelStrategy >> removedTopLabelShape: arg1 [
 ]
 
 { #category : #public }
-UrLabelStrategy >> setupCanvasController: anUrCanvasController [
+UrLabelStrategy >> setupCanvasController [
 
-	^ self subclassResponsibility
+	self subclassResponsibility
 ]
 
 { #category : #public }

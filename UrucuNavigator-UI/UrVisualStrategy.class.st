@@ -15,6 +15,7 @@ UrVisualStrategy >> colorFor: aUrNode [
 
 { #category : #accessing }
 UrVisualStrategy >> currentTheme [
+
 	^ Smalltalk ui theme
 ]
 
@@ -40,17 +41,11 @@ UrVisualStrategy >> hoverInteractionForEdges [
 	^ hoverInteractionForEdges
 ]
 
-{ #category : #accessing }
-UrVisualStrategy >> hoverInteractionForShapes [
-	^ hoverInteractionForShapes
-]
-
 { #category : #initialization }
 UrVisualStrategy >> initialize [ 
 	super initialize.
 	
 	hoverInteractionForEdges := self newHoverInteractionForEdges.
-	hoverInteractionForShapes := self newHoverInteractionForShapes.
 	
 "	highlightInteractionForCurrentSearchResult := RSHighlightable new
 		propertyKey: #searchResult;
@@ -108,21 +103,6 @@ UrVisualStrategy >> newHoverInteractionForEdges [
 
 	^ RSHighlightable new
 		highlightColor: self currentTheme caretColor;
-		yourself
-
-]
-
-{ #category : #accessing }
-UrVisualStrategy >> newHoverInteractionForShapes [
-
-	^ RSHighlightable new
-		highlightColor: [ :shape |
-			shape color adjustBrightness: 0.16 ];
-		highlightBorder: [ :shape | 
-			RSBorder new
-				color: self currentTheme textColor;
-				width: 2;
-				yourself ];
 		yourself
 
 ]

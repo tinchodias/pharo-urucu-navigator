@@ -2,16 +2,30 @@ Class {
 	#name : #UrSidesStrategy,
 	#superclass : #UrLabelStrategy,
 	#instVars : [
-		'canvasController',
 		'leftLayout',
 		'rightLayout',
 		'outerMargin',
 		'labelPrototype',
 		'refreshDeferrer',
-		'lastLeftShapes'
+		'lastLeftShapes',
+		'highlightInteraction'
 	],
 	#category : #'UrucuNavigator-UI-Core'
 }
+
+{ #category : #public }
+UrSidesStrategy >> addInteractionsTo: aRSShape line: line label: label [
+
+	| shapesToHighlightOnHover |
+	shapesToHighlightOnHover := { line. label. aRSShape }.
+	shapesToHighlightOnHover do: [ :each |
+		each
+			propertyAt: #shapesToHighlightOnHover 
+			put: shapesToHighlightOnHover ].
+	line addInteraction: highlightInteraction.
+	label addInteraction: highlightInteraction.
+
+]
 
 { #category : #private }
 UrSidesStrategy >> bezierLineFrom: aRSShape to: itsLabel [
@@ -40,6 +54,7 @@ UrSidesStrategy >> bezierLineFrom: aRSShape to: itsLabel [
 
 { #category : #initialization }
 UrSidesStrategy >> initialize [
+
 	super initialize.
 
 	outerMargin := 10.
@@ -48,7 +63,7 @@ UrSidesStrategy >> initialize [
 		send: #refreshLeftAndRightGroups
 		to: self
 		after: 50 milliSeconds
-		maxDefer: 1 second.
+		maxDefer: 0.5 second.
 
 	leftLayout := RSVerticalLineLayout new
 		gapSize: 0;
@@ -60,9 +75,9 @@ UrSidesStrategy >> initialize [
 		alignLeft;
 		yourself.
 
-	labelPrototype := RSLabel new
-		addInteraction: self newHighlightable;
-		yourself.
+	labelPrototype := RSLabel new.
+	
+	highlightInteraction := self newHighlightable.
 
 ]
 
@@ -85,23 +100,26 @@ UrSidesStrategy >> labelFor: aRSShape [
 { #category : #private }
 UrSidesStrategy >> lineFrom: aRSShape to: itsLabel [
 
-	^ self bezierLineFrom: aRSShape to: itsLabel
+"	^ self bezierLineFrom: aRSShape to: itsLabel"
+	^ self straightLineFrom: aRSShape to: itsLabel
 
 ]
 
 { #category : #initialization }
 UrSidesStrategy >> newHighlightable [
 
+	| aBorder |
+	aBorder := RSBorder new
+		width: 1.25;
+		color: canvasController visualStrategy currentTheme textColor;
+		yourself.
+
 	^ RSHighlightable new
-		highlightShapes: [ :aRSLabel |
-			| composite line to |
-			composite := aRSLabel parent.
-			line := composite connectedEdges first.
-			to := line from.
-			{ line. to. composite. } ];
+		highlightShapes: [ :aRSShape |
+			aRSShape propertyAt: #shapesToHighlightOnHover ];
 		when: RSHighlightEvent
 			do: [ :evt | evt shape pushFront ];
-		highlightBorder: (RSBorder new width: 1.5; color: Color black; yourself);
+		highlightBorder: aBorder;
 		yourself
 ]
 
@@ -138,14 +156,18 @@ UrSidesStrategy >> removedTopLabelShape: aRSShape [
 ]
 
 { #category : #public }
-UrSidesStrategy >> setupCanvasController: anUrCanvasController [ 
+UrSidesStrategy >> setupCanvasController [
 	
-	canvasController := anUrCanvasController.
-
 	canvasController canvas
 		when: RSExtentChangedEvent
 		send: #schedule
-		to: refreshDeferrer
+		to: refreshDeferrer.
+
+	canvasController protoNodeShape
+		addInteraction: highlightInteraction;
+		when: RSPositionChangedEvent
+			send: #schedule
+			to: refreshDeferrer.
 
 ]
 
@@ -156,14 +178,14 @@ UrSidesStrategy >> setupNewShapes: aCollection [
 	labels := RSGroup new.
 	lines := RSGroup new.
 	
-	aCollection do: [ :each |
+	aCollection do: [ :aRSShape |
 		| label line |
-		label := self labelFor: each.
-		line := self lineFrom: each to: label.
+		label := self labelFor: aRSShape.
+		line := self lineFrom: aRSShape to: label.
 
-		each propertyAt: self className put: label.
-		each when: RSPositionChangedEvent send: #schedule to: refreshDeferrer.
-			
+		aRSShape propertyAt: self className put: label.
+		self addInteractionsTo: aRSShape line: line label: label.
+		
 		labels add: label.
 		lines add: line ].
 	

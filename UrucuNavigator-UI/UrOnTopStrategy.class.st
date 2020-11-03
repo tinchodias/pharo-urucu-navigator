@@ -26,9 +26,9 @@ UrOnTopStrategy >> removedTopLabelShape: aRSShape [
 ]
 
 { #category : #public }
-UrOnTopStrategy >> setupCanvasController: anUrCanvasController [
+UrOnTopStrategy >> setupCanvasController [
 
-	anUrCanvasController protoNodeShape addInteraction:
+	canvasController protoNodeShape addInteraction:
 		self newLabelInteraction
 ]
 
