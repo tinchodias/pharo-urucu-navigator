@@ -156,7 +156,7 @@ UrVisualStrategy >> setupCanvas: aRSCanvas [
 UrVisualStrategy >> setupLayout: layout [
 
 	layout
-		charge: -60;
+		charge: -240;
 		friction: 0.75;
 "		strength: 1;"
 		gravity: 0.1;

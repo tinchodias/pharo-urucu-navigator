@@ -36,6 +36,6 @@ UrMainPresenter class >> exampleImageDependencies: packageNames [
 		openWithSpec)
 		withWindowDo: [ :window | 
 			window
-				extent: 500 @ 500;
+				extent: 800 @ 500;
 				title: self name ]
 ]

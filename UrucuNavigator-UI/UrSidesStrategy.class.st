@@ -13,9 +13,42 @@ Class {
 	#category : #'UrucuNavigator-UI-Core'
 }
 
+{ #category : #private }
+UrSidesStrategy >> bezierLineFrom: aRSShape to: itsLabel [
+
+	^ RSBezier new
+		controlPointsController: RSHorizontalCPAPController new;
+"		controlPointsController: (RSBlockCPController new
+	        block: [:ed | | f t ap |
+	            ap := ed attachPoint.
+	            f := ap startingPointOf: ed.
+	            t := ap endingPointOf: ed.
+	            Array 
+	                with: f
+	                with: t x @ f y
+	                with: f x @ t y
+	                with: t. ]);
+"		from: aRSShape;
+		to: itsLabel;
+		color: Color lightGray;
+		withCenteredAttachPoint;
+		dashArray: #(2);
+		width: 0.75;
+		yourself
+
+]
+
 { #category : #initialization }
 UrSidesStrategy >> initialize [
 	super initialize.
+
+	outerMargin := 10.
+
+	refreshDeferrer := UrDeferrer
+		send: #refreshLeftAndRightGroups
+		to: self
+		after: 50 milliSeconds
+		maxDefer: 1 second.
 
 	leftLayout := RSVerticalLineLayout new
 		gapSize: 0;
@@ -28,16 +61,8 @@ UrSidesStrategy >> initialize [
 		yourself.
 
 	labelPrototype := RSLabel new
-"		scaleBy: 0.9;"
+		addInteraction: self newHighlightable;
 		yourself.
-
-	outerMargin := 10.
-
-	refreshDeferrer := UrDeferrer
-		send: #refreshLeftAndRightGroups
-		to: self
-		after: 50 milliSeconds
-		maxDefer: 250 milliSeconds
 
 ]
 
@@ -52,7 +77,7 @@ UrSidesStrategy >> labelFor: aRSShape [
 	^ { label } asGroup asShape
 		color: canvasController canvas color;
 		propertyAt: self className put: aRSShape;
-		padding: 1;
+		padding: 3@1;
 		yourself
 
 ]
@@ -60,16 +85,24 @@ UrSidesStrategy >> labelFor: aRSShape [
 { #category : #private }
 UrSidesStrategy >> lineFrom: aRSShape to: itsLabel [
 
-	^ RSBezier new
-		controlPointsController: RSHorizontalCPAPController new;
-		from: aRSShape;
-		to: itsLabel;
-		color: Color lightGray;
-		withCenteredAttachPoint;
-		dashArray: #(2);
-		width: 0.75;
-		yourself
+	^ self bezierLineFrom: aRSShape to: itsLabel
 
+]
+
+{ #category : #initialization }
+UrSidesStrategy >> newHighlightable [
+
+	^ RSHighlightable new
+		highlightShapes: [ :aRSLabel |
+			| composite line to |
+			composite := aRSLabel parent.
+			line := composite connectedEdges first.
+			to := line from.
+			{ line. to. composite. } ];
+		when: RSHighlightEvent
+			do: [ :evt | evt shape pushFront ];
+		highlightBorder: (RSBorder new width: 1.5; color: Color black; yourself);
+		yourself
 ]
 
 { #category : #private }
@@ -140,5 +173,19 @@ UrSidesStrategy >> setupNewShapes: aCollection [
 
 	labels pushBack.
 	lines pushBack.
+
+]
+
+{ #category : #private }
+UrSidesStrategy >> straightLineFrom: aRSShape to: itsLabel [
+
+	^ RSLine new
+		from: aRSShape;
+		to: itsLabel;
+		color: Color lightGray;
+		withCenteredAttachPoint;
+		dashArray: #(2);
+		width: 0.75;
+		yourself
 
 ]

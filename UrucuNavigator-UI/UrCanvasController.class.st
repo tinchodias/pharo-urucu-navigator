@@ -456,7 +456,7 @@ UrCanvasController >> startForceAnimationAfterDissolve [
 	forceAnimation := canvas newAnimation
 		easing: RSEasing cubicInOut;
 		scale: (NSLinearScale new domain: #(0 0.1 1); range: #(0 0.2 0); yourself);
-		duration: 1 seconds;
+		duration: 2 seconds;
 		onStepDo: [ :t | layout alpha: t; step ];
 		yourself
 ]
@@ -469,7 +469,7 @@ UrCanvasController >> startForceAnimationFinitely [
 	forceAnimation := canvas newAnimation
 		easing: RSEasing cubicInOut;
 		range: self forceAlphaRangeAsArray reversed;
-		duration: 2 seconds;
+		duration: 3 seconds;
 		onStepDo: [ :t | layout alpha: t; step ];
 		yourself
 ]
