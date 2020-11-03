@@ -32,7 +32,8 @@ UrImageDependenciesVisualStrategy >> colorForTopParent: aPackageName [
 UrImageDependenciesVisualStrategy >> initialize [
 	super initialize.
 
-	colorScaleForPackageNames := RSColorPalette qualitative set311.
+"	colorScaleForPackageNames := RSColorPalette qualitative set311."
+	colorScaleForPackageNames := NSScale category20c.
 	colorForInternalPackage := colorScaleForPackageNames scale: nil.
 ]
 
