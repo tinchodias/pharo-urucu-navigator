@@ -431,7 +431,8 @@ UrCanvasController >> startCollapseAnimationOn: aRSShape [
 			aRSShape matrix
 				loadIdentity;
 				translation: position.
-			aRSShape size: endSize ].
+			aRSShape size: endSize.
+			aRSShape color: (visualStrategy colorFor: aRSShape model) ]
 
 ]
 
@@ -442,7 +443,9 @@ UrCanvasController >> startExpandAnimationOn: aRSShape [
 		duration: self expandDuration;
 		from: (visualStrategy sizeFor: aRSShape model) / aRSShape extent;
 		to: 1@1;
-		onStepDo: [ :t | self expand: aRSShape step: t ].
+		onStepDo: [ :t | self expand: aRSShape step: t ];
+		when: RSAnimationEndEvent do: [
+			aRSShape color: visualStrategy backgroundColor ]
 
 ]
 

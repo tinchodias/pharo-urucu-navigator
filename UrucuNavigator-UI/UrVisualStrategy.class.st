@@ -9,6 +9,13 @@ Class {
 }
 
 { #category : #accessing }
+UrVisualStrategy >> backgroundColor [ 
+
+	^ self currentTheme backgroundColor
+
+]
+
+{ #category : #accessing }
 UrVisualStrategy >> colorFor: aUrNode [
 	^ self subclassResponsibility
 ]
@@ -148,4 +155,11 @@ UrVisualStrategy >> setupLayout: layout [
 { #category : #accessing }
 UrVisualStrategy >> sizeFor: aUrNode [
 	^ (100 * (aUrNode children size + 1)) sqrt
+]
+
+{ #category : #accessing }
+UrVisualStrategy >> textColor [ 
+
+	^ self currentTheme textColor
+
 ]
