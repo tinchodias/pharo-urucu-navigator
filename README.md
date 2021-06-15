@@ -8,8 +8,8 @@ Evaluate the following script in a Pharo (7, 8 or 9 should work):
 
 ~~~smalltalk
 Metacello new
-    baseline: 'BaselineBuilder';
-    repository: 'github://tinchodias/pharo-metacello-baseline-builder';
+    baseline: 'UrucuNavigator';
+    repository: 'github://tinchodias/pharo-urucu-navigator';
     load.
 ~~~
 
@@ -19,6 +19,12 @@ Open the navigator with:
 
 ```Smalltalk
 UrNavigatorPresenter example1
+```
+
+or:
+
+```Smalltalk
+UrMainPresenter example2medium
 ```
 
 There is also an experimental Roassal3 layout where rectangles repulse other.
