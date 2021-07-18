@@ -455,7 +455,7 @@ UrCanvasController >> startForceAnimationAfterDissolve [
 	self stopForceAnimation.
 
 	forceAnimation := canvas newAnimation
-		easing: RSEasing cubicInOut;
+		easing: RSEasingInterpolator cubicInOut;
 		scale: (NSLinearScale new domain: #(0 0.1 1); range: #(0 0.2 0); yourself);
 		duration: 2 seconds;
 		onStepDo: [ :t | layout alpha: t; step ];
@@ -468,7 +468,7 @@ UrCanvasController >> startForceAnimationFinitely [
 	self stopForceAnimation.
 
 	forceAnimation := canvas newAnimation
-		easing: RSEasing cubicInOut;
+		easing: RSEasingInterpolator cubicInOut;
 		range: self forceAlphaRangeAsArray reversed;
 		duration: 3 seconds;
 		onStepDo: [ :t | layout alpha: t; step ];
@@ -485,7 +485,7 @@ UrCanvasController >> startForceAnimationInfinitely [
 
 		"Start smoothly"
 		canvas transitionAnimation
-			easing: RSEasing cubicOut;
+			easing: RSEasingInterpolator cubicOut;
 			duration: 500 milliSeconds;
 			range: self forceAlphaRangeAsArray;
 			onStepDo: [ :t | layout alpha: t; step ].
@@ -543,7 +543,7 @@ UrCanvasController >> undissolve: aRSShape [
 	originalPositions := childrenShapes collect: #position.
 	targetPosition := aRSShape position.
 	canvas newAnimation 
-		easing: RSEasing cubicInOut;
+		easing: RSEasingInterpolator cubicInOut;
 		duration: 0.5 seconds;
 
 		onStepDo: [ :t |
