@@ -66,13 +66,13 @@ UrRectangleRepulsionForceLayout class >> openWithLayoutClass: layoutClass [
 	view addAll: nodes.
 
 	view newAnimation
-		easing: RSEasing cubicInOut;
+		easing: RSEasingInterpolator cubicInOut;
 		from: 0.1;
 		to: 0.0;
 		duration: 7 seconds;
 		onStepDo: [ :t | instance alpha: t; step ].
 	
-	view addInteraction: RSSimpleCanvasMonitor.
+	view addInteraction: RSSimpleCanvasMonitorInteraction.
 	view camera scale: 2.
 	view open setLabel: instance className.
 
