@@ -279,7 +279,7 @@ UrCanvasController >> initializeOn: aRSCanvas visualStrategy: aUrVisualStrategy 
 	"Initialize stuff for node shapes"
 	protoNodeShape := RSComposite new
 		addInteraction: (RSPopup new text: [ :each | each object ]; yourself);
-		addInteraction: (RSDraggableForce new layout: layout; yourself);
+		addInteraction: (RSDraggableForceInteraction new layout: layout; yourself);
 		addInteraction: self newMenuInteractionForNodes;
 		when: RSMouseDragStart do: [:evt | evt shape pushFront. self startForceAnimationInfinitely ];
 		when: RSMouseDragEnd do: [:evt | self startForceAnimationFinitely ];
