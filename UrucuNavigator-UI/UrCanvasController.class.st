@@ -71,7 +71,7 @@ UrCanvasController >> addEdgesFor: someRSShapes [
 					value: (canvas shapeFromModel: toModel) ].
 		].
 
-	layout addEdges: edges.
+	layout addLines: edges.
 	edges do: [ :anEdge |
 		(layout mockEdgeAt: anEdge) length: (visualStrategy edgeLengthFor: anEdge) ].
 	
