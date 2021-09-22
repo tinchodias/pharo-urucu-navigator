@@ -73,7 +73,7 @@ UrCanvasController >> addEdgesFor: someRSShapes [
 
 	layout addLines: edges.
 	edges do: [ :anEdge |
-		(layout mockEdgeAt: anEdge) length: (visualStrategy edgeLengthFor: anEdge) ].
+		(layout mockLineAt: anEdge ifPresent: [ : mockLine | mockLine length: (visualStrategy edgeLengthFor: anEdge) ]) ].
 	
 	edges do: #pushBack.
 
