@@ -227,7 +227,7 @@ UrCanvasController >> expand: aRSShape step: t [
 	aRSShape resetBBox.
 	aRSShape connectedEdges do: [ :anEdge |
 		layout edges
-			detect: [ :each | each realEdge == anEdge ]
+			detect: [ :each | each realLine == anEdge ]
 			ifFound: [ :mockEdge |
 				mockEdge length: (visualStrategy edgeLengthFor: anEdge) ]
 		 ]
