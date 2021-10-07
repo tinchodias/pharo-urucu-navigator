@@ -133,3 +133,12 @@ UrImageDependenciesBuilder >> visitDAReferenceDependency: aDAReferenceDependency
 	to := self ensureAddNodeForClassNamed: aDAReferenceDependency reference instanceSide name in: aDAReferenceDependency target.
 	from addOutgoingLinkTo: to.
 ]
+
+{ #category : #visiting }
+UrImageDependenciesBuilder >> visitDATraitDependency: aDATraitDependency [ 
+
+	| from to |
+	from := self ensureAddNodeForClassNamed: aDATraitDependency theClass name in: aDATraitDependency source.
+	to := self ensureAddNodeForClassNamed: aDATraitDependency trait name in: aDATraitDependency target.
+	from addOutgoingLinkTo: to.
+]
