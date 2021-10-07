@@ -1,5 +1,7 @@
 # Urucu Navigator
 
+[![Complete Test](https://github.com/tinchodias/pharo-urucu-navigator/actions/workflows/test.yml/badge.svg)](https://github.com/tinchodias/pharo-urucu-navigator/actions/workflows/test.yml)
+
 An experimental navigator of code dependencies with Pharo and [Roassal3](https://github.com/ObjectProfile/Roassal3).
 
 ![Demo GIF](https://media.giphy.com/media/jERUcF0GFZPOTngb09/giphy.gif)
