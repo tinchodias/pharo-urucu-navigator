@@ -19,7 +19,9 @@ BaselineOfUrucuNavigator >> baseline: spec [
 				package: 'UrucuNavigator-Tests'
 					with: [ spec requires: #('UrucuNavigator') ];
 				package: 'UrucuNavigator-UI'
-					with: [ spec requires: #('Roassal3' 'UrucuNavigator') ] ]
+					with: [ spec requires: #('Roassal3' 'UrucuNavigator') ];
+				package: 'UrucuNavigator-UI-Tests'
+					with: [ spec requires: #('UrucuNavigator-UI') ] ]
 ]
 
 { #category : #'external projects' }
