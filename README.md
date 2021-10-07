@@ -9,7 +9,7 @@ An experimental navigator of code dependencies with Pharo and [Roassal3](https:/
 
 ## Install
 
-Evaluate the following script in a Pharo (8 or 9 should work):
+Evaluate the following script in a Pharo (9  or 10 should work):
 
 ~~~smalltalk
 Metacello new
